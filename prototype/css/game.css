@@ -1,0 +1,528 @@
+/* Magic Quill — "Storybook Dawn" theme.
+ * The world is the reward: the sky itself brightens as she writes.
+ * Landscape tablet-first; right-handed child → controls live on the LEFT.
+ */
+
+:root {
+  --ink: #4a3650;
+  --cream: #fffaf2;
+  --gold: #ffd76b;
+  --pink: #ff7eb6;
+  --lilac: #b88ad6;
+  --sky-text: #fff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;               /* no pinch zoom / pull-to-refresh */
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body {
+  font-family: 'Baloo 2', 'Comic Sans MS', cursive, sans-serif;
+  color: var(--ink);
+  position: relative;
+}
+
+/* ---------- the sky (crossfading gradient layers) ---------- */
+.sky-layer {
+  position: fixed; inset: 0;
+  opacity: 0;
+  transition: opacity 2.4s ease;
+  z-index: -3;
+  pointer-events: none;
+}
+.sky-layer.night  { background: linear-gradient(180deg, #1b1840 0%, #322a63 55%, #54417e 100%); }
+.sky-layer.dawn1  { background: linear-gradient(180deg, #2e2a5e 0%, #6c4a8c 50%, #c4699c 100%); }
+.sky-layer.dawn2  { background: linear-gradient(180deg, #5a5096 0%, #c4699c 45%, #ffb37e 100%); }
+.sky-layer.day    { background: linear-gradient(180deg, #7ec8f7 0%, #aee3fb 55%, #ffe9c4 100%); }
+
+body.sky-night .sky-layer.night,
+body.sky-dawn1 .sky-layer.dawn1,
+body.sky-dawn2 .sky-layer.dawn2,
+body.sky-day   .sky-layer.day { opacity: 1; }
+
+/* stars — visible at night, fade at dawn */
+#stars {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  opacity: 0; transition: opacity 2s ease;
+}
+body.sky-night #stars { opacity: 1; }
+body.sky-dawn1 #stars { opacity: 0.5; }
+#stars i {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: #fff;
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+#stars i:nth-child(2n) { animation-delay: 0.9s; width: 3px; height: 3px; }
+#stars i:nth-child(3n) { animation-delay: 1.7s; }
+@keyframes twinkle { 0%,100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+/* the sun — rises with her writing */
+#sun {
+  position: fixed; left: 12vw; z-index: -2; pointer-events: none;
+  width: 16vmin; height: 16vmin; border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #fff6c9, #ffd76b 60%, #ffb84d);
+  box-shadow: 0 0 60px 24px rgba(255, 215, 107, 0.55);
+  bottom: -20vmin;
+  transition: bottom 2.6s cubic-bezier(.45,.05,.35,1), box-shadow 2.6s ease;
+}
+body.sky-dawn1 #sun { bottom: -6vmin; }
+body.sky-dawn2 #sun { bottom: 16vmin; box-shadow: 0 0 80px 36px rgba(255, 215, 107, 0.65); }
+body.sky-day   #sun { bottom: 52vmin; box-shadow: 0 0 90px 44px rgba(255, 224, 130, 0.7); }
+
+/* the moon — rises for the MOON quest */
+#moon {
+  position: fixed; right: 14vw; z-index: -2; pointer-events: none;
+  width: 13vmin; height: 13vmin; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fffdf0, #f0ead2 65%, #d8d0b8);
+  box-shadow: 0 0 50px 18px rgba(240, 234, 210, 0.4);
+  bottom: -18vmin;
+  transition: bottom 2.6s cubic-bezier(.45,.05,.35,1);
+}
+#moon::after {            /* crescent shadow */
+  content: '';
+  position: absolute; top: -6%; left: -14%;
+  width: 86%; height: 86%; border-radius: 50%;
+  background: rgba(50, 42, 99, 0.55);
+}
+body.moon-up #moon { bottom: 50vmin; }
+
+/* rain — drops appear level by level (rain-level-1..4) */
+#rain {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+#rain i {
+  position: absolute; top: -6vh;
+  width: 3px; height: 16px; border-radius: 3px;
+  background: linear-gradient(180deg, rgba(188,216,255,0), #bcd8ff);
+  opacity: 0;
+  animation: raindrop 0.9s linear infinite;
+}
+@keyframes raindrop {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(80vh); }
+}
+body.rain-level-1 #rain i:nth-child(-n+4)  { opacity: 0.85; }
+body.rain-level-2 #rain i:nth-child(-n+8)  { opacity: 0.85; }
+body.rain-level-3 #rain i:nth-child(-n+12) { opacity: 0.85; }
+body.rain-level-4 #rain i                  { opacity: 0.85; }
+
+/* rainbow — RAIN quest payoff */
+#rainbow {
+  position: fixed; left: 50%; bottom: 18vh; z-index: -1; pointer-events: none;
+  width: min(72vmin, 80vw);
+  transform: translateX(-50%) scale(0.5);
+  transform-origin: bottom center;
+  opacity: 0;
+  transition: opacity 1.4s ease, transform 1.4s cubic-bezier(.34,1.56,.64,1);
+}
+body.rainbow-show #rainbow { opacity: 0.92; transform: translateX(-50%) scale(1); }
+
+/* shooting stars — STAR quest */
+.shooting-star {
+  position: fixed; z-index: 0; pointer-events: none;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px 3px rgba(255, 246, 201, 0.9);
+  animation: shoot 1.3s ease-out forwards;
+}
+.shooting-star::before {
+  content: '';
+  position: absolute; right: 2px; top: 1.5px;
+  width: 70px; height: 2px;
+  background: linear-gradient(270deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+  transform-origin: right center;
+  transform: rotate(-200deg);
+}
+@keyframes shoot {
+  0% { transform: translate(0, 0); opacity: 1; }
+  100% { transform: translate(38vmin, 22vmin); opacity: 0; }
+}
+
+/* extra-twinkle payoff for STAR */
+body.star-burst #stars { opacity: 1; }
+body.star-burst #stars i {
+  width: 5px; height: 5px;
+  box-shadow: 0 0 7px 2px rgba(255, 255, 255, 0.8);
+  animation-duration: 1.2s;
+}
+
+/* bloomers — GROW quest flower patches (bloom-1..4) */
+#meadow .bloomer {
+  transform: scale(0);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transition: transform 0.9s cubic-bezier(.34,1.56,.64,1);
+}
+body.bloom-1 #meadow .bloomer.b1,
+body.bloom-2 #meadow .bloomer.b2,
+body.bloom-3 #meadow .bloomer.b3,
+body.bloom-4 #meadow .bloomer.b4,
+body.bloom-all #meadow .bloomer { transform: scale(1); }
+
+/* writing-mode toggle on the title screen */
+.mode-btn {
+  font-family: inherit;
+  font-size: clamp(0.95rem, 2.4vmin, 1.3rem);
+  font-weight: 700;
+  color: var(--ink);
+  background: rgba(255, 250, 242, 0.85);
+  border: none;
+  border-radius: 999px;
+  padding: 0.5em 1.4em;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(74, 54, 80, 0.25);
+  -webkit-tap-highlight-color: transparent;
+}
+.mode-btn:active { transform: translateY(2px); }
+
+/* sticker collection row on the complete panel */
+#sticker-row {
+  font-size: clamp(1.4rem, 4vmin, 2.2rem);
+  letter-spacing: 0.3em;
+  min-height: 1.2em;
+}
+
+/* meadow — darkens at night */
+#meadow {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: -1;
+  width: 100%; height: 26vh; pointer-events: none;
+  filter: brightness(1);
+  transition: filter 2.4s ease;
+}
+body.sky-night #meadow { filter: brightness(0.45) saturate(0.7); }
+body.sky-dawn1 #meadow { filter: brightness(0.62) saturate(0.8); }
+body.sky-dawn2 #meadow { filter: brightness(0.85); }
+
+/* ---------- screens ---------- */
+.screen {
+  position: fixed; inset: 0;
+  display: none;
+  z-index: 5;
+}
+.screen.active { display: flex; }
+
+/* title */
+#screen-title {
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 2vh;
+  text-align: center;
+}
+#screen-title h1 {
+  font-size: clamp(2.4rem, 7vmin, 4.6rem);
+  color: #fff;
+  text-shadow: 0 3px 0 rgba(74, 54, 80, 0.35), 0 8px 26px rgba(74, 54, 80, 0.3);
+  letter-spacing: 0.02em;
+}
+#screen-title .subtitle {
+  font-size: clamp(1.1rem, 3vmin, 1.7rem);
+  color: #fff;
+  opacity: 0.95;
+  text-shadow: 0 2px 10px rgba(74, 54, 80, 0.4);
+  margin-top: -1vh;
+}
+#title-unicorn { width: clamp(180px, 30vmin, 300px); }
+#title-unicorn .unicorn-svg { width: 100%; height: auto; }
+
+.big-btn {
+  font-family: inherit;
+  font-size: clamp(1.5rem, 4.5vmin, 2.4rem);
+  font-weight: 700;
+  color: #7a4a12;
+  background: linear-gradient(180deg, #ffe9a8, var(--gold) 60%, #ffc24d);
+  border: none;
+  border-radius: 999px;
+  padding: 0.55em 1.8em;
+  box-shadow: 0 8px 0 #d99b2b, 0 14px 30px rgba(0,0,0,0.25);
+  cursor: pointer;
+  animation: btn-breathe 2.2s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+}
+.big-btn:active { transform: translateY(5px); box-shadow: 0 3px 0 #d99b2b, 0 8px 18px rgba(0,0,0,0.25); }
+@keyframes btn-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* ---------- persistent rail (unicorn + speech) — LEFT side ---------- */
+#rail {
+  position: fixed; left: 1.5vw; bottom: 2vh;
+  width: clamp(180px, 26vw, 340px);
+  z-index: 6;
+  pointer-events: none;
+}
+#screen-title.active ~ #rail { display: none; }
+
+#unicorn-slot .unicorn-svg { width: 100%; height: auto; }
+
+#bubble {
+  background: var(--cream);
+  border-radius: 22px;
+  padding: 12px 16px;
+  font-size: clamp(0.95rem, 2.4vmin, 1.3rem);
+  font-weight: 600;
+  line-height: 1.3;
+  box-shadow: 0 6px 18px rgba(74, 54, 80, 0.25);
+  position: relative;
+  margin-bottom: 8px;
+  min-height: 2.4em;
+}
+#bubble::after {
+  content: '';
+  position: absolute; bottom: -10px; left: 38px;
+  border: 11px solid transparent;
+  border-top-color: var(--cream);
+  border-bottom: none;
+}
+.bubble-pop { animation: bubble-pop 0.35s cubic-bezier(.34,1.56,.64,1); }
+@keyframes bubble-pop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* ---------- trace screen ---------- */
+#screen-trace {
+  flex-direction: column;
+  align-items: flex-end;          /* trace card on the right for righties */
+  padding: 2vh 3vw 2vh 0;
+}
+
+#word-row {
+  display: flex; gap: 0.5vw;
+  justify-content: center;
+  width: 100%;
+  padding: 0 2vw;
+  margin-bottom: 1.5vh;
+}
+.tile {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: clamp(34px, 6.2vmin, 60px);
+  height: clamp(40px, 7.4vmin, 70px);
+  padding: 0 6px;
+  border-radius: 14px;
+  background: rgba(255, 250, 242, 0.55);
+  color: var(--ink);
+  font-size: clamp(1.3rem, 4.4vmin, 2.4rem);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.5);
+  transition: transform 0.25s, background 0.4s;
+}
+.tile.current {
+  background: var(--cream);
+  box-shadow: inset 0 0 0 3px var(--gold), 0 6px 16px rgba(74,54,80,0.3);
+  animation: tile-bounce 1s ease-in-out infinite;
+}
+.tile.done {
+  background: linear-gradient(135deg, #ffd1ec, #ffe9a8 50%, #c9f0ff);
+  box-shadow: 0 4px 12px rgba(74,54,80,0.2);
+}
+@keyframes tile-bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+.trace-card {
+  background: radial-gradient(circle at 30% 20%, #fffdf7, var(--cream));
+  border-radius: 32px;
+  box-shadow: 0 14px 40px rgba(40, 25, 60, 0.35), inset 0 0 0 6px rgba(255, 215, 107, 0.35);
+  width: min(62vw, 78vh);
+  height: min(78vh, 100%);
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  padding: 2vmin;
+}
+/* whole-word canvas: one svg slot per glyph, school lines run across each row */
+#word-canvas {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  gap: 2vmin;
+}
+.word-line {
+  display: flex; justify-content: center;
+  width: 100%;
+  /* cap 15/140, dashed midline 62/140, baseline 112/140 of slot height */
+  background:
+    linear-gradient(#c5a8dd, #c5a8dd) 0 10.71% / 100% 2px no-repeat,
+    repeating-linear-gradient(to right, #d9c2e8 0 8px, transparent 8px 18px) 0 44.29% / 100% 2px no-repeat,
+    linear-gradient(#b88ad6, #b88ad6) 0 80% / 100% 2.5px no-repeat;
+}
+.slot {
+  display: block;
+  width: calc(100% / var(--n, 4));
+  aspect-ratio: 100 / 140;
+  touch-action: none;
+  cursor: crosshair;
+  border-radius: 10px;
+}
+.slot.active {
+  background: rgba(255, 224, 130, 0.16);
+  box-shadow: inset 0 0 0 3px rgba(255, 215, 107, 0.45);
+}
+.slot-preview {
+  stroke: #cfb9e2; opacity: 0.4;
+  fill: none; stroke-width: 7;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* tracing strokes (classes created by tracer.js) */
+.mq-under { stroke: #f0dcc8; stroke-width: 13; }
+.mq-guide {
+  stroke: #d9c2e8; stroke-width: 2.6;
+  stroke-dasharray: 0.1 7;
+  opacity: 0.85;
+}
+.mq-guide-active { stroke: var(--lilac); opacity: 1; }
+.mq-ink { stroke-width: 9.5; }
+.mq-start {
+  fill: var(--gold);
+  stroke: #fff; stroke-width: 1.6;
+  transition: opacity 0.2s;
+}
+.mq-pulse { animation: dot-pulse 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes dot-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+.mq-arrow { fill: var(--lilac); opacity: 0.95; transition: opacity 0.2s; }
+.mq-comet {
+  fill: #fff;
+  filter: drop-shadow(0 0 6px #ffe66b) drop-shadow(0 0 12px #ff7eb6);
+  transition: opacity 0.3s;
+}
+.mq-mote {
+  animation: mote-drift 0.8s ease-out forwards;
+  transform-box: fill-box;
+}
+@keyframes mote-drift {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx, 0), var(--dy, -12px)) scale(0.3); }
+}
+.mq-shake { animation: gentle-shake 0.4s ease; }
+@keyframes gentle-shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }
+}
+
+/* freehand mode: school writing lines + her own ink (classes from freehand.js) */
+.fh-line { stroke-width: 1.4; }
+.fh-cap  { stroke: #c5a8dd; }
+.fh-mid  { stroke: #d9c2e8; stroke-dasharray: 4 4; opacity: 0.8; }
+.fh-base { stroke: #b88ad6; stroke-width: 1.8; }
+.fh-ink {
+  stroke: #8ab6ff;
+  stroke-width: 4.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity 0.4s;
+}
+.fh-ink-done { stroke-width: 5.2; }
+.fh-fade { opacity: 0; }
+
+/* ---------- naming + complete panels (centered, rail stays visible) ---------- */
+#screen-naming, #screen-complete {
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 3vh;
+}
+.panel {
+  background: var(--cream);
+  border-radius: 32px;
+  padding: 4vh 4vw;
+  box-shadow: 0 14px 40px rgba(40, 25, 60, 0.35);
+  text-align: center;
+  display: flex; flex-direction: column; gap: 2.5vh; align-items: center;
+}
+.panel h2 { font-size: clamp(1.6rem, 4.5vmin, 2.6rem); }
+.name-choices { display: flex; gap: 2vw; }
+.name-btn {
+  font-family: inherit;
+  font-size: clamp(1.3rem, 3.8vmin, 2rem);
+  font-weight: 700;
+  color: var(--ink);
+  border: none; border-radius: 24px;
+  padding: 0.7em 1.1em;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(74,54,80,0.25), 0 10px 22px rgba(74,54,80,0.18);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s;
+}
+.name-btn:active { transform: translateY(4px); }
+.name-btn[data-name="Luna"]  { background: linear-gradient(180deg, #d8ccff, #b89cff); }
+.name-btn[data-name="Rosie"] { background: linear-gradient(180deg, #ffd1e4, #ff9cc6); }
+.name-btn[data-name="Star"]  { background: linear-gradient(180deg, #fff3c4, #ffe066); }
+
+.sticker {
+  font-size: clamp(3rem, 10vmin, 5.5rem);
+  animation: sticker-spin 1.2s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes sticker-spin { 0% { transform: scale(0) rotate(-180deg); } 100% { transform: scale(1) rotate(0); } }
+
+/* ---------- corner controls (left = reachable without covering writing) ---------- */
+#music-btn {
+  position: fixed; top: 1.5vh; left: 1.5vw; z-index: 9;
+  width: clamp(44px, 7vmin, 64px); height: clamp(44px, 7vmin, 64px);
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 250, 242, 0.85);
+  color: var(--ink);
+  font-size: clamp(1.2rem, 3vmin, 1.7rem);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(74,54,80,0.25);
+}
+#music-btn.off { opacity: 0.45; text-decoration: line-through; }
+
+#parent-link {
+  position: fixed; bottom: 1vh; right: 1vw; z-index: 9;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  padding: 8px;
+}
+
+/* ---------- unicorn animation states ---------- */
+.unicorn { pointer-events: none; }
+.unicorn-svg { overflow: visible; }
+
+.u-tail { animation: tail-sway 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: right center; }
+@keyframes tail-sway { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(7deg); } }
+
+.u-eye { transform-box: fill-box; transform-origin: center; animation: blink 4.4s infinite; }
+@keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 95.5%, 97% { transform: scaleY(0.08); } }
+
+.u-idle .u-body-group { animation: idle-bob 3s ease-in-out infinite; }
+@keyframes idle-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+.u-shy .u-head-group {
+  transform-box: fill-box; transform-origin: center bottom;
+  animation: shy-peek 3s ease-in-out infinite;
+}
+@keyframes shy-peek {
+  0%,100% { transform: rotate(7deg) translateY(4px); }
+  50% { transform: rotate(2deg) translateY(1px); }
+}
+.u-shy .u-stars { opacity: 0; }
+
+.u-happy .u-body-group { animation: happy-bounce 0.55s cubic-bezier(.34,1.56,.64,1) 2; }
+@keyframes happy-bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+.u-celebrate .u-body-group {
+  transform-box: fill-box; transform-origin: 30% 90%;
+  animation: rear-up 0.9s cubic-bezier(.34,1.56,.64,1) 2;
+}
+@keyframes rear-up {
+  0%,100% { transform: rotate(0); }
+  40% { transform: rotate(-12deg) translateY(-10px); }
+}
+.u-stars { opacity: 0; transition: opacity 0.3s; }
+.u-celebrate .u-stars { opacity: 1; }
+.u-celebrate .u-star { animation: star-pop 1s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.u-celebrate .u-star.s2 { animation-delay: 0.3s; }
+.u-celebrate .u-star.s3 { animation-delay: 0.6s; }
+@keyframes star-pop { 0%,100% { transform: scale(0.7); opacity: 0.6; } 50% { transform: scale(1.25); opacity: 1; } }
+
+/* ---------- portrait fallback (game is designed landscape) ---------- */
+@media (orientation: portrait) {
+  #screen-trace { align-items: center; padding: 1vh 2vw; }
+  .trace-card { width: 92vw; height: 58vh; }
+  #rail { width: 38vw; bottom: 1vh; }
+  #rotate-hint { display: block; }
+}
+#rotate-hint {
+  display: none;
+  position: fixed; top: 1vh; right: 2vw; z-index: 9;
+  color: #fff; font-size: 0.9rem; opacity: 0.8;
+}

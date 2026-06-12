@@ -1,0 +1,11 @@
+# crash dumps
+*.stackdump
+
+# throwaway browser-test artifacts (see project memory: testing-recipe)
+.smoke-*
+.diag-*
+.verify-*
+.fw-*
+
+# dependencies (none committed; tests install playwright in a temp dir)
+node_modules/

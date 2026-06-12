@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Unicorn Academy: Magic Quill</title>
+
+  <!-- PWA: add to home screen → full-screen app -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#322a63">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body class="sky-day">
+
+  <!-- sky stack (crossfaded by body class) -->
+  <div class="sky-layer night"></div>
+  <div class="sky-layer dawn1"></div>
+  <div class="sky-layer dawn2"></div>
+  <div class="sky-layer day"></div>
+
+  <!-- stars -->
+  <div id="stars">
+    <i style="top:8%;left:12%"></i><i style="top:15%;left:28%"></i><i style="top:6%;left:43%"></i>
+    <i style="top:18%;left:57%"></i><i style="top:9%;left:70%"></i><i style="top:14%;left:84%"></i>
+    <i style="top:26%;left:7%"></i><i style="top:31%;left:22%"></i><i style="top:24%;left:38%"></i>
+    <i style="top:33%;left:50%"></i><i style="top:27%;left:64%"></i><i style="top:35%;left:78%"></i>
+    <i style="top:22%;left:92%"></i><i style="top:42%;left:15%"></i><i style="top:45%;left:33%"></i>
+    <i style="top:40%;left:60%"></i><i style="top:47%;left:74%"></i><i style="top:44%;left:88%"></i>
+    <i style="top:4%;left:60%"></i><i style="top:12%;left:95%"></i><i style="top:38%;left:45%"></i>
+    <i style="top:5%;left:25%"></i><i style="top:20%;left:3%"></i><i style="top:30%;left:97%"></i>
+  </div>
+
+  <!-- the sun rises as she writes -->
+  <div id="sun"></div>
+
+  <!-- the moon rises for the MOON quest -->
+  <div id="moon"></div>
+
+  <!-- rain falls for the RAIN quest (drops revealed level by level) -->
+  <div id="rain" aria-hidden="true">
+    <i style="left:6%;animation-delay:0s"></i><i style="left:14%;animation-delay:.4s"></i>
+    <i style="left:22%;animation-delay:.15s"></i><i style="left:30%;animation-delay:.55s"></i>
+    <i style="left:38%;animation-delay:.25s"></i><i style="left:46%;animation-delay:.65s"></i>
+    <i style="left:54%;animation-delay:.1s"></i><i style="left:62%;animation-delay:.5s"></i>
+    <i style="left:70%;animation-delay:.3s"></i><i style="left:78%;animation-delay:.7s"></i>
+    <i style="left:86%;animation-delay:.2s"></i><i style="left:94%;animation-delay:.6s"></i>
+    <i style="left:10%;animation-delay:.8s"></i><i style="left:42%;animation-delay:.9s"></i>
+    <i style="left:66%;animation-delay:.75s"></i><i style="left:90%;animation-delay:.85s"></i>
+  </div>
+
+  <!-- rainbow payoff for the RAIN quest -->
+  <svg id="rainbow" viewBox="0 0 200 100" aria-hidden="true">
+    <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="#ff7eb6" stroke-width="7"/>
+    <path d="M 17 100 A 83 83 0 0 1 183 100" fill="none" stroke="#ffb86b" stroke-width="7"/>
+    <path d="M 24 100 A 76 76 0 0 1 176 100" fill="none" stroke="#ffe66b" stroke-width="7"/>
+    <path d="M 31 100 A 69 69 0 0 1 169 100" fill="none" stroke="#7ee8a2" stroke-width="7"/>
+    <path d="M 38 100 A 62 62 0 0 1 162 100" fill="none" stroke="#8ab6ff" stroke-width="7"/>
+  </svg>
+
+  <!-- meadow -->
+  <svg id="meadow" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,80 C 200,20 380,110 560,60 C 720,20 880,90 1000,50 L 1000,200 L 0,200 Z" fill="#69b86b"/>
+    <path d="M0,130 C 180,80 420,160 640,110 C 800,75 920,140 1000,110 L 1000,200 L 0,200 Z" fill="#4d9e58"/>
+    <!-- flowers -->
+    <g fill="#ff9cc6">
+      <circle cx="120" cy="150" r="7"/><circle cx="133" cy="143" r="7"/><circle cx="146" cy="150" r="7"/>
+      <circle cx="133" cy="157" r="7"/><circle cx="133" cy="150" r="5" fill="#ffe066"/>
+    </g>
+    <g fill="#b89cff">
+      <circle cx="820" cy="160" r="6"/><circle cx="831" cy="154" r="6"/><circle cx="842" cy="160" r="6"/>
+      <circle cx="831" cy="166" r="6"/><circle cx="831" cy="160" r="4" fill="#fff"/>
+    </g>
+    <g fill="#ffe066">
+      <circle cx="560" cy="170" r="5"/><circle cx="569" cy="165" r="5"/><circle cx="578" cy="170" r="5"/>
+      <circle cx="569" cy="175" r="5"/><circle cx="569" cy="170" r="3.4" fill="#ff9cc6"/>
+    </g>
+    <!-- bloomers: hidden flower patches that GROW reveals one per letter -->
+    <g class="bloomer b1" fill="#ff8fb8">
+      <circle cx="250" cy="148" r="8"/><circle cx="264" cy="140" r="8"/><circle cx="278" cy="148" r="8"/>
+      <circle cx="264" cy="156" r="8"/><circle cx="264" cy="148" r="5.5" fill="#fff3c4"/>
+    </g>
+    <g class="bloomer b2" fill="#9be0ff">
+      <circle cx="430" cy="140" r="7"/><circle cx="442" cy="133" r="7"/><circle cx="454" cy="140" r="7"/>
+      <circle cx="442" cy="147" r="7"/><circle cx="442" cy="140" r="4.8" fill="#ffe066"/>
+    </g>
+    <g class="bloomer b3" fill="#ffd76b">
+      <circle cx="680" cy="155" r="8"/><circle cx="694" cy="147" r="8"/><circle cx="708" cy="155" r="8"/>
+      <circle cx="694" cy="163" r="8"/><circle cx="694" cy="155" r="5.5" fill="#ff8fb8"/>
+    </g>
+    <g class="bloomer b4" fill="#cdaaff">
+      <circle cx="900" cy="142" r="7"/><circle cx="912" cy="135" r="7"/><circle cx="924" cy="142" r="7"/>
+      <circle cx="912" cy="149" r="7"/><circle cx="912" cy="142" r="4.8" fill="#fff"/>
+    </g>
+  </svg>
+
+  <!-- ===== screens ===== -->
+  <section id="screen-title" class="screen active">
+    <h1 id="title-heading">Unicorn Academy</h1>
+    <p class="subtitle">✨ Magic Quill ✨</p>
+    <div id="title-unicorn"></div>
+    <button id="play-btn" class="big-btn">▶ Play</button>
+    <button id="mode-btn" class="mode-btn">✏️ With tracing</button>
+  </section>
+
+  <section id="screen-trace" class="screen">
+    <div id="word-row"></div>
+    <div class="trace-card">
+      <div id="word-canvas"></div>
+    </div>
+  </section>
+
+  <section id="screen-naming" class="screen">
+    <div class="panel">
+      <h2>Pick my name!</h2>
+      <div class="name-choices">
+        <button class="name-btn" data-name="Luna">🌙 Luna</button>
+        <button class="name-btn" data-name="Rosie">🌹 Rosie</button>
+        <button class="name-btn" data-name="Star">⭐ Star</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-complete" class="screen">
+    <div class="panel">
+      <div class="sticker" id="complete-sticker">🎀</div>
+      <h2 id="complete-msg">You earned a magic bow!</h2>
+      <div id="sticker-row" aria-label="Sticker collection"></div>
+      <button id="again-btn" class="big-btn">Play again</button>
+    </div>
+  </section>
+
+  <!-- persistent unicorn + speech (left side, clear of her writing hand) -->
+  <aside id="rail">
+    <div id="bubble">…</div>
+    <div id="unicorn-slot"></div>
+  </aside>
+
+  <button id="music-btn" aria-label="Music on or off">♪</button>
+  <a id="parent-link" href="replay.html" aria-label="Parent replay page">✦ grown-ups</a>
+  <div id="rotate-hint">↻ turn me sideways!</div>
+
+  <script src="js/letters.js"></script>
+  <script src="js/words.js"></script>
+  <script src="js/tracer.js"></script>
+  <script src="js/freehand.js"></script>
+  <script src="js/narrator.js"></script>
+  <script src="js/sounds.js"></script>
+  <script src="js/unicorn.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
