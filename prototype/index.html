@@ -109,6 +109,7 @@
     <p class="subtitle">✨ Magic Quill ✨</p>
     <div id="title-unicorn"></div>
     <button id="play-btn" class="big-btn">▶ Play</button>
+    <button id="adventure-btn" class="big-btn outside-btn">🌞 Go outside!</button>
     <button id="mode-btn" class="mode-btn">✏️ With tracing</button>
   </section>
 
@@ -137,6 +138,31 @@
     </div>
   </section>
 
+  <!-- Adventure Playground Quest: pick a go-outside mission -->
+  <section id="screen-adventures" class="screen">
+    <div class="panel">
+      <h2>Where shall we adventure today?</h2>
+      <div id="adventure-grid"></div>
+    </div>
+  </section>
+
+  <!-- the mission card: go do it, tap when you're back (honor system) -->
+  <section id="screen-mission" class="screen">
+    <div class="panel">
+      <div id="mission-icon" class="mission-icon">🌞</div>
+      <h2 id="mission-prompt">Find something!</h2>
+      <button id="mission-go-btn" class="big-btn">Go! 🦄 Tap me when you're back!</button>
+    </div>
+  </section>
+
+  <!-- back from the adventure: which of these did you find? -->
+  <section id="screen-found" class="screen">
+    <div class="panel">
+      <h2>What did you find?</h2>
+      <div id="found-grid"></div>
+    </div>
+  </section>
+
   <section id="screen-complete" class="screen">
     <div class="panel">
       <div class="sticker" id="complete-sticker">🎀</div>
@@ -159,6 +185,7 @@
   <script src="js/letters.js"></script>
   <script src="js/words.js"></script>
   <script src="js/topics.js"></script>
+  <script src="js/adventures.js"></script>
   <script src="js/tracer.js"></script>
   <script src="js/freehand.js"></script>
   <script src="js/narrator.js"></script>

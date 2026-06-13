@@ -20,7 +20,7 @@ window.MQ = window.MQ || {};
     try { localStorage.setItem('mq_profile', JSON.stringify(p)); } catch (e) {}
   }
   const profile = Object.assign(
-    { name: MQ.NAME_TEXT, unicorn: null, quest0Done: false, stickers: [], bag: [], bags: {}, mode: 'trace' },
+    { name: MQ.NAME_TEXT, unicorn: null, quest0Done: false, stickers: [], bag: [], bags: {}, mode: 'trace', advLevel: 1 },
     loadProfile()
   );
 
@@ -31,6 +31,9 @@ window.MQ = window.MQ || {};
     trace: $('#screen-trace'),
     naming: $('#screen-naming'),
     topics: $('#screen-topics'),
+    adventures: $('#screen-adventures'),
+    mission: $('#screen-mission'),
+    found: $('#screen-found'),
     complete: $('#screen-complete')
   };
   const sky = document.body;
@@ -39,6 +42,8 @@ window.MQ = window.MQ || {};
   const wordCanvas = $('#word-canvas');
   let unicorn = null;
   let engine = null;
+  let lastMode = 'topic';     // which picker the complete screen returns to
+  let currentMission = null;  // mission resolved at trip start (immune to mid-trip edits)
 
   function showScreen(name) {
     Object.keys(screens).forEach((k) => screens[k].classList.toggle('active', k === name));
@@ -223,6 +228,7 @@ window.MQ = window.MQ || {};
 
   /* ---------- topic picker ("What shall we learn today?") ---------- */
   function showTopicPicker() {
+    lastMode = 'topic';
     showScreen('topics');
     unicorn && unicorn.setState('happy');
     say('What shall we learn today? Pick one!');
@@ -344,7 +350,11 @@ window.MQ = window.MQ || {};
     const topic = resolveTopic(topicId);          // resolved once — immune to mid-run edits
     const words = drawWords(WORDS_PER_RUN, topic);
     for (const w of words) await runWord(w, topic);
-    // run complete: award a sticker (new ones first, then repeats)
+    finishRun(words);
+  }
+
+  /* award a sticker (new ones first, then repeats) and show the complete screen */
+  function finishRun(words) {
     const unearned = STICKERS.filter((s) => !profile.stickers.includes(s));
     const sticker = unearned.length ? pick(unearned) : pick(STICKERS);
     if (!profile.stickers.includes(sticker)) profile.stickers.push(sticker);
@@ -353,13 +363,111 @@ window.MQ = window.MQ || {};
     showComplete(sticker, words);
   }
 
+  /* ---------- Adventure Playground Quest (go-outside missions) ----------
+   * 🌞 Go outside! → pick a mission → go do it → tap back → pick what you
+   * found → WRITE that word (reuses writeSequence) → sticker. One mission =
+   * one trip = one word. Missions live in MQ.Adventures (mq_adventures). */
+
+  function showAdventurePicker() {
+    lastMode = 'adventure';
+    showScreen('adventures');
+    unicorn && unicorn.setState('happy');
+    say('Where shall we adventure today? Pick one!');
+    const grid = $('#adventure-grid');
+    grid.innerHTML = '';
+    const level = profile.advLevel || 1;
+    let missions = MQ.Adventures.list().filter((m) => (m.level || 1) <= level);
+    if (!missions.length) missions = MQ.Adventures.list(); // never show an empty picker
+    missions.forEach((m) => {
+      const btn = document.createElement('button');
+      btn.className = 'topic-btn';                // reuse the topic card styling
+      const emoji = document.createElement('span');
+      emoji.className = 'emoji';
+      emoji.textContent = m.icon || '🌞';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = m.name;                 // textContent: parent-typed, never HTML
+      const stars = document.createElement('span');
+      stars.className = 'stars';
+      stars.textContent = '⭐'.repeat(Math.max(1, Math.min(3, m.level || 1)));
+      btn.appendChild(emoji);
+      btn.appendChild(label);
+      btn.appendChild(stars);
+      btn.onclick = () => { S.pop(); startMission(m.id); };
+      grid.appendChild(btn);
+    });
+  }
+
+  function startMission(id) {
+    const m = MQ.Adventures.get(id);              // resolved once — immune to mid-trip edits
+    if (!m) { showAdventurePicker(); return; }
+    currentMission = m;
+    showScreen('mission');
+    $('#mission-icon').textContent = m.icon || '🌞';
+    $('#mission-prompt').textContent = m.prompt;  // textContent: parent free-text
+    unicorn && unicorn.setState('happy');
+    say(m.prompt);
+  }
+
+  function showFound(mission) {
+    if (!mission) { showAdventurePicker(); return; }
+    showScreen('found');
+    unicorn && unicorn.setState('happy');
+    say('You are back! What did you find?');
+    const grid = $('#found-grid');
+    grid.innerHTML = '';
+    mission.choices.filter(MQ.Adventures.validChoice).forEach((c) => {
+      const btn = document.createElement('button');
+      btn.className = 'topic-btn';
+      const emoji = document.createElement('span');
+      emoji.className = 'emoji';
+      emoji.textContent = c.icon || '✨';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = MQ.wordDisplay(c.word);
+      btn.appendChild(emoji);
+      btn.appendChild(label);
+      btn.onclick = () => { S.pop(); runAdventureWrite(mission, c.word); };
+      grid.appendChild(btn);
+    });
+  }
+
+  async function runAdventureWrite(mission, word) {
+    const display = MQ.wordDisplay(word);         // 'LEAF' → 'Leaf'
+    const seq = display.split('');
+    const fx = pick(MQ.GENERIC_FX);               // adventures always get a random payoff
+    clearFx();
+    setSky(fx.sky || 'day');
+    showScreen('trace');
+    unicorn.setState('idle');
+    buildWordRow(seq);
+    const intro = say('You found ' + display + '! Write it with the magic quill! ' + soundOut(seq) + '!');
+    await writeSequence(seq, {
+      intro: intro,
+      onLetterDone: async () => { N.speak(N.praise()); }
+    });
+    // word payoff (same vocabulary as runWord's tail)
+    if (fx.payoffClass) sky.classList.add(fx.payoffClass);
+    if (fx.stageFx === 'shoot' || fx.payoffClass === 'star-burst') {
+      for (let i = 0; i < 6; i++) setTimeout(spawnShootingStar, i * 160);
+    }
+    unicorn.setState('celebrate');
+    S.fanfare();
+    await say(seq.join(' ') + ' spells ' + display + '! You are a real adventurer, ' + profile.name + '!');
+    finishRun([word]);
+  }
+
   function showComplete(sticker, words) {
     showScreen('complete');
     $('#complete-sticker').textContent = sticker;
     $('#complete-msg').textContent = 'You wrote ' + words.map(MQ.wordDisplay).join(', ') + '!';
     $('#sticker-row').textContent = profile.stickers.join(' ');
-    $('#again-btn').textContent = 'Play again!';
-    N.speak('Three words! You earned a ' + 'sticker for ' + (profile.unicorn || 'your unicorn') + '! Want to write more?');
+    const adv = lastMode === 'adventure';
+    $('#again-btn').textContent = adv ? '🌞 Adventure again!' : 'Play again!';
+    N.speak((adv
+      ? 'What an adventure! You earned a sticker for '
+      : 'Three words! You earned a sticker for ') +
+      (profile.unicorn || 'your unicorn') + '! Want to ' + (adv ? 'go again?' : 'write more?'));
   }
 
   /* ---------- writing mode toggle ---------- */
@@ -400,7 +508,18 @@ window.MQ = window.MQ || {};
       }
     };
 
-    $('#again-btn').onclick = () => showTopicPicker();
+    $('#again-btn').onclick = () =>
+      (lastMode === 'adventure' ? showAdventurePicker() : showTopicPicker());
+
+    $('#adventure-btn').onclick = async () => {
+      S.unlock();                       // user gesture: unlock audio + speech
+      if (S.musicPref()) S.toggleMusic(true);
+      if (!profile.quest0Done) { quest0(); return; }  // meet + name the unicorn first
+      if (profile.unicorn) await N.speak('Adventure time, ' + profile.name + '! ' + profile.unicorn + ' is coming too!');
+      showAdventurePicker();
+    };
+
+    $('#mission-go-btn').onclick = () => { S.pop(); showFound(currentMission); };
 
     $('#music-btn').onclick = (e) => {
       const on = S.toggleMusic();

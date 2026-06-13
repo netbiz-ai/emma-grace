@@ -109,6 +109,31 @@
     .editor-actions { display: flex; gap: 10px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
     .editor-actions button[disabled] { opacity: 0.4; cursor: not-allowed; }
     .editor-msg { font-size: 0.82rem; opacity: 0.78; }
+
+    /* ---------- adventure mission editor (sibling of the word-pack editor) ---------- */
+    #advs { margin-top: 44px; max-width: 760px; }
+    #advs h2 { font-size: 1.4rem; margin-bottom: 2px; }
+    #advs h2 .hint { font-size: 0.85rem; opacity: 0.55; font-weight: 500; }
+    #advs > .sub { margin-bottom: 14px; }
+    .adv-level-set { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 14px; margin-bottom: 16px; }
+    .adv-level-set .lbl { font-size: 0.9rem; opacity: 0.85; }
+    #adv-level-control { display: flex; gap: 4px; }
+    #adv-level-control label { cursor: pointer; }
+    #adv-level-control input { position: absolute; opacity: 0; width: 0; height: 0; }
+    #adv-level-control label span {
+      display: inline-block; font-size: 1.1rem; padding: 5px 9px;
+      border-radius: 10px; border: 2px solid transparent; background: rgba(255,255,255,0.06); }
+    #adv-level-control input:checked + span { border-color: #ffd76b; background: rgba(255,215,107,0.18); }
+    #adv-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+    #adv-editor { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 16px 18px; margin-top: 10px; }
+    #adv-editor h3 { font-size: 1.1rem; margin-bottom: 12px; }
+    #adv-editor input[type=text] {
+      font-family: inherit; font-size: 1rem; padding: 8px 12px;
+      border-radius: 8px; border: 2px solid transparent; background: #1f1b3d; color: #f3eefc; }
+    #adv-editor input.bad { border-color: #ff8a8a; }
+    #adv-editor .w-emoji { flex: 0 0 64px; text-align: center; font-size: 1.2rem; }
+    #adv-editor .w-word { flex: 1; min-width: 0; }
   </style>
 </head>
 <body>
@@ -133,9 +158,25 @@
     <div id="pack-editor" hidden></div>
   </section>
 
+  <section id="advs">
+    <h2>🌞 Adventures <span class="hint">(grown-ups)</span></h2>
+    <p class="sub">Send Emma-Grace on real go-outside missions. She taps 🌞 Go outside!, does the mission, comes back, picks what she found, and writes it. Please make sure a grown-up is around before she heads outside.</p>
+    <div class="adv-level-set">
+      <span class="lbl">Emma-Grace’s adventure level:</span>
+      <div id="adv-level-control"></div>
+      <span class="lbl" style="opacity:0.6">(she sees missions at or below this)</span>
+    </div>
+    <div id="adv-corrupt" class="pack-banner" hidden></div>
+    <div id="adv-list"></div>
+    <button id="adv-add" class="ghost">+ New mission</button>
+    <div id="adv-editor" hidden></div>
+  </section>
+
   <script src="js/letters.js"></script>
   <script src="js/topics.js"></script>
+  <script src="js/adventures.js"></script>
   <script src="js/replay.js"></script>
   <script src="js/topics-editor.js"></script>
+  <script src="js/adventures-editor.js"></script>
 </body>
 </html>

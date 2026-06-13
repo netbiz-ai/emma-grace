@@ -482,6 +482,34 @@ body.sky-dawn2 #meadow { filter: brightness(0.85); }
 .topic-btn:nth-child(5n+5) { background: linear-gradient(180deg, #d6f5d0, #9be08a); }
 /* the always-present built-in pack keeps a signature gold-lilac sparkle */
 .topic-btn.magic { background: linear-gradient(180deg, #fff3c4, #e7c9ff); }
+/* level stars under an adventure card name */
+.topic-btn .stars { font-size: clamp(0.75rem, 1.9vmin, 1.05rem); letter-spacing: 0.08em; line-height: 1; }
+
+/* ---------- Adventure Playground Quest ---------- */
+/* picker + "what did you find?" reuse the topic grid/card layout */
+#screen-adventures, #screen-found { align-items: center; justify-content: center; flex-direction: column; }
+#screen-adventures .panel, #screen-found .panel { max-width: min(94vw, 920px); max-height: 90vh; }
+#adventure-grid, #found-grid {
+  display: flex; flex-wrap: wrap;
+  justify-content: center; align-content: center;
+  gap: 2vmin;
+  width: 100%;
+  overflow-y: auto;
+}
+
+/* the mission card: one big go-do prompt + a single Go button */
+#screen-mission { align-items: center; justify-content: center; flex-direction: column; }
+#screen-mission .panel { max-width: min(92vw, 720px); }
+.mission-icon { font-size: clamp(3rem, 12vmin, 6rem); line-height: 1; }
+#mission-prompt { line-height: 1.2; }
+
+/* the title's Go-outside button: a sky-blue sibling of .big-btn */
+.outside-btn {
+  color: #0d4a63;
+  background: linear-gradient(180deg, #cdeeff, #8fd9ff 60%, #5cc1f5);
+  box-shadow: 0 8px 0 #3a9bc8, 0 14px 30px rgba(0,0,0,0.25);
+}
+.outside-btn:active { transform: translateY(5px); box-shadow: 0 3px 0 #3a9bc8, 0 8px 18px rgba(0,0,0,0.25); }
 
 .sticker {
   font-size: clamp(3rem, 10vmin, 5.5rem);
