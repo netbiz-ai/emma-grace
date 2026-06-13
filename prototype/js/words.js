@@ -2,7 +2,8 @@
  * Words are drawn at random via a shuffle bag (no repeats until the bag
  * empties). Five "hero" words keep bespoke world effects; every other word
  * gets a random payoff from GENERIC_FX.
- * All words use only authored glyphs: A B C D E F G H I K L M N O P R S T U W
+ * Every A–Z / a–z glyph is authored in letters.js, so the bank (and any
+ * parent-made topic pack in topics.js) can use any English word.
  */
 window.MQ = window.MQ || {};
 

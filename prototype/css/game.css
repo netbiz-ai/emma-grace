@@ -445,6 +445,44 @@ body.sky-dawn2 #meadow { filter: brightness(0.85); }
 .name-btn[data-name="Rosie"] { background: linear-gradient(180deg, #ffd1e4, #ff9cc6); }
 .name-btn[data-name="Star"]  { background: linear-gradient(180deg, #fff3c4, #ffe066); }
 
+/* ---------- topic picker ("What shall we learn today?") ---------- */
+#screen-topics { align-items: center; justify-content: center; flex-direction: column; }
+#screen-topics .panel { max-width: min(94vw, 920px); max-height: 90vh; }
+#topic-grid {
+  display: flex; flex-wrap: wrap;
+  justify-content: center; align-content: center;
+  gap: 2vmin;
+  width: 100%;
+  overflow-y: auto;
+}
+.topic-btn {
+  font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.3em;
+  width: clamp(108px, 20vmin, 184px);
+  min-height: clamp(108px, 20vmin, 184px);
+  padding: 1em 0.6em;
+  border: none; border-radius: 24px;
+  color: var(--ink);
+  font-size: clamp(1rem, 2.6vmin, 1.5rem);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(74,54,80,0.25), 0 10px 22px rgba(74,54,80,0.18);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s;
+}
+.topic-btn:active { transform: translateY(4px); }
+.topic-btn .emoji { font-size: clamp(2.4rem, 7vmin, 4rem); line-height: 1; }
+.topic-btn .label { word-break: break-word; line-height: 1.1; }
+/* pastel gradient variants cycle by position so any number of packs stays lively */
+.topic-btn:nth-child(5n+1) { background: linear-gradient(180deg, #d8ccff, #b89cff); }
+.topic-btn:nth-child(5n+2) { background: linear-gradient(180deg, #ffd1e4, #ff9cc6); }
+.topic-btn:nth-child(5n+3) { background: linear-gradient(180deg, #fff3c4, #ffe066); }
+.topic-btn:nth-child(5n+4) { background: linear-gradient(180deg, #c9f0ff, #8fd9ff); }
+.topic-btn:nth-child(5n+5) { background: linear-gradient(180deg, #d6f5d0, #9be08a); }
+/* the always-present built-in pack keeps a signature gold-lilac sparkle */
+.topic-btn.magic { background: linear-gradient(180deg, #fff3c4, #e7c9ff); }
+
 .sticker {
   font-size: clamp(3rem, 10vmin, 5.5rem);
   animation: sticker-spin 1.2s cubic-bezier(.34,1.56,.64,1);

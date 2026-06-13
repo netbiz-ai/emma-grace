@@ -20,7 +20,7 @@ window.MQ = window.MQ || {};
     try { localStorage.setItem('mq_profile', JSON.stringify(p)); } catch (e) {}
   }
   const profile = Object.assign(
-    { name: MQ.NAME_TEXT, unicorn: null, quest0Done: false, stickers: [], bag: [], mode: 'trace' },
+    { name: MQ.NAME_TEXT, unicorn: null, quest0Done: false, stickers: [], bag: [], bags: {}, mode: 'trace' },
     loadProfile()
   );
 
@@ -30,6 +30,7 @@ window.MQ = window.MQ || {};
     title: $('#screen-title'),
     trace: $('#screen-trace'),
     naming: $('#screen-naming'),
+    topics: $('#screen-topics'),
     complete: $('#screen-complete')
   };
   const sky = document.body;
@@ -214,21 +215,77 @@ window.MQ = window.MQ || {};
         profile.unicorn = btn.dataset.name;
         saveProfile(profile);
         unicorn.setState('celebrate');
-        await say(profile.unicorn + '! I love it! I am ' + profile.unicorn + ' the unicorn! Now, let us write some magic words!');
-        runQuest();
+        await say(profile.unicorn + '! I love it! I am ' + profile.unicorn + ' the unicorn! Now, let us learn something fun!');
+        showTopicPicker();
       };
     });
   }
 
-  /* ---------- random magic word runs ---------- */
-  function drawWords(n) {
-    let bag = Array.isArray(profile.bag) ? profile.bag : [];
+  /* ---------- topic picker ("What shall we learn today?") ---------- */
+  function showTopicPicker() {
+    showScreen('topics');
+    unicorn && unicorn.setState('happy');
+    say('What shall we learn today? Pick one!');
+    const grid = $('#topic-grid');
+    grid.innerHTML = '';
+    // Magic-words card first, then every grown-up-made pack
+    const cards = [MQ.Topics.MAGIC].concat(MQ.Topics.list());
+    cards.forEach((t) => {
+      const btn = document.createElement('button');
+      btn.className = 'topic-btn' + (t.id === MQ.Topics.MAGIC.id ? ' magic' : '');
+      const emoji = document.createElement('span');
+      emoji.className = 'emoji';
+      emoji.textContent = t.icon || '✨';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = t.name;          // textContent: parent-typed, never HTML
+      btn.appendChild(emoji);
+      btn.appendChild(label);
+      btn.onclick = () => { S.pop(); runQuest(t.id); };
+      grid.appendChild(btn);
+    });
+  }
+
+  /* ---------- word runs (magic bank OR a topic pack) ---------- */
+  /* topic === null means the built-in magic-word bank */
+  function resolveTopic(topicId) {
+    if (!topicId || topicId === MQ.Topics.MAGIC.id) return null;
+    const t = MQ.Topics.get(topicId);
+    return t && Array.isArray(t.words) ? t : null; // unknown/empty pack → magic
+  }
+
+  function factFor(topic, word) {
+    const entry = topic.words.find((w) => w.word === word);
+    const f = entry && typeof entry.fact === 'string' ? entry.fact.trim() : '';
+    return f || null;
+  }
+
+  function drawWords(n, topic) {
+    if (!topic) {
+      // magic words: shuffle bag over the whole bank (no repeats until empty)
+      let bag = Array.isArray(profile.bag) ? profile.bag : [];
+      const picks = [];
+      while (picks.length < n) {
+        if (!bag.length) bag = MQ.shuffledBank();
+        picks.push(bag.shift());
+      }
+      profile.bag = bag;
+      saveProfile(profile);
+      return picks;
+    }
+    // topic pack: per-topic bag, re-filtered against the pack's CURRENT valid
+    // words so mid-life parent edits (removed words) can't serve stale picks
+    const valid = topic.words.map((w) => w.word).filter(MQ.Topics.validWord);
+    if (valid.length < 1) return drawWords(n, null); // nothing usable → magic fallback
+    if (!profile.bags || typeof profile.bags !== 'object') profile.bags = {};
+    let bag = Array.isArray(profile.bags[topic.id]) ? profile.bags[topic.id] : [];
+    bag = bag.filter((w) => valid.indexOf(w) >= 0);
     const picks = [];
     while (picks.length < n) {
-      if (!bag.length) bag = MQ.shuffledBank();
+      if (!bag.length) bag = MQ.Topics.shuffle(valid);
       picks.push(bag.shift());
     }
-    profile.bag = bag;
+    profile.bags[topic.id] = bag;
     saveProfile(profile);
     return picks;
   }
@@ -248,10 +305,12 @@ window.MQ = window.MQ || {};
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
   const soundOut = (seq) => seq.map((g) => MQ.LETTERS[g].sound).join('... ');
 
-  async function runWord(word) {
+  async function runWord(word, topic) {
     const display = MQ.wordDisplay(word); // 'SUN' → 'Sun'; FX/bank keep uppercase keys
     const seq = display.split('');
-    const fx = MQ.WORD_FX[word] || pick(MQ.GENERIC_FX);
+    const fact = topic ? factFor(topic, word) : null;
+    // topic words get a random visual; only magic-bank words keep bespoke WORD_FX
+    const fx = (!topic && MQ.WORD_FX[word]) ? MQ.WORD_FX[word] : pick(MQ.GENERIC_FX);
     clearFx();
     setSky(fx.sky || 'day');
     showScreen('trace');
@@ -277,13 +336,14 @@ window.MQ = window.MQ || {};
     }
     unicorn.setState('celebrate');
     S.fanfare();
-    const doneLine = fx.doneLine || pick(DONES).replace(/\{W\}/g, display);
+    const doneLine = fact || fx.doneLine || pick(DONES).replace(/\{W\}/g, display);
     await say(seq.join(' ') + ' spells ' + display + '! ' + doneLine);
   }
 
-  async function runQuest() {
-    const words = drawWords(WORDS_PER_RUN);
-    for (const w of words) await runWord(w);
+  async function runQuest(topicId) {
+    const topic = resolveTopic(topicId);          // resolved once — immune to mid-run edits
+    const words = drawWords(WORDS_PER_RUN, topic);
+    for (const w of words) await runWord(w, topic);
     // run complete: award a sticker (new ones first, then repeats)
     const unearned = STICKERS.filter((s) => !profile.stickers.includes(s));
     const sticker = unearned.length ? pick(unearned) : pick(STICKERS);
@@ -298,8 +358,8 @@ window.MQ = window.MQ || {};
     $('#complete-sticker').textContent = sticker;
     $('#complete-msg').textContent = 'You wrote ' + words.map(MQ.wordDisplay).join(', ') + '!';
     $('#sticker-row').textContent = profile.stickers.join(' ');
-    $('#again-btn').textContent = 'More magic words!';
-    N.speak('Three magic words! You earned a ' + 'sticker for ' + (profile.unicorn || 'your unicorn') + '! Want to write more?');
+    $('#again-btn').textContent = 'Play again!';
+    N.speak('Three words! You earned a ' + 'sticker for ' + (profile.unicorn || 'your unicorn') + '! Want to write more?');
   }
 
   /* ---------- writing mode toggle ---------- */
@@ -336,11 +396,11 @@ window.MQ = window.MQ || {};
         quest0();
       } else {
         if (profile.unicorn) await N.speak('Welcome back, ' + profile.name + '! ' + profile.unicorn + ' missed you!');
-        runQuest();
+        showTopicPicker();
       }
     };
 
-    $('#again-btn').onclick = () => runQuest();
+    $('#again-btn').onclick = () => showTopicPicker();
 
     $('#music-btn').onclick = (e) => {
       const on = S.toggleMusic();

@@ -3,7 +3,8 @@
  *   cap line y=15, midline y=62, baseline y=112.
  * Each glyph: ordered strokes, drawn in US-print (ball-and-stick) formation.
  * `path` is the guide the child traces; checkpoints are sampled along it.
- * Scales to all 26 letters later — just add entries.
+ * All 52 letters (A–Z, a–z) plus the magic dash are authored, so any English
+ * word — magic-word bank or parent-made topic pack — can be written.
  */
 window.MQ = window.MQ || {};
 
@@ -163,6 +164,55 @@ MQ.LETTERS = {
     strokes: [
       { path: 'M 30 15 L 30 112' },
       { path: 'M 30 15 C 64 15 68 28 68 40 C 68 52 62 64 30 64' }
+    ]
+  },
+
+  // ---- remaining uppercase: full alphabet for topic word packs ----
+  'J': {
+    display: 'J',
+    sound: 'juh',
+    strokes: [
+      { path: 'M 62 15 L 62 90 C 62 110 38 112 32 96' }
+    ]
+  },
+  'Q': {
+    display: 'Q',
+    sound: 'kwuh',
+    strokes: [
+      { path: 'M 50 15 C 26 15 22 45 22 63 C 22 82 26 112 50 112 C 74 112 78 82 78 63 C 78 45 74 15 50 15' },
+      { path: 'M 58 88 L 80 118' }
+    ]
+  },
+  'V': {
+    display: 'V',
+    sound: 'vvv',
+    strokes: [
+      { path: 'M 28 15 L 50 112' },
+      { path: 'M 72 15 L 50 112' }
+    ]
+  },
+  'X': {
+    display: 'X',
+    sound: 'ks',
+    strokes: [
+      { path: 'M 28 15 L 72 112' },
+      { path: 'M 72 15 L 28 112' }
+    ]
+  },
+  'Y': {
+    display: 'Y',
+    sound: 'yuh',
+    strokes: [
+      { path: 'M 28 15 L 50 62' },
+      { path: 'M 72 15 L 50 62' },
+      { path: 'M 50 62 L 50 112' }
+    ]
+  },
+  'Z': {
+    display: 'Z',
+    sound: 'zzz',
+    strokes: [
+      { path: 'M 28 15 L 72 15 L 28 112 L 72 112' }
     ]
   },
 
@@ -327,6 +377,73 @@ MQ.LETTERS = {
     strokes: [
       { path: 'M 30 64 L 30 138' },
       { path: 'M 30 81 C 30 58 68 61 68 87 C 68 113 38 114 30 95' }
+    ]
+  },
+  // ---- remaining lowercase: full alphabet for topic word packs ----
+  // ascenders reach the cap line 15
+  'b': {
+    display: 'b',
+    sound: 'buh',
+    strokes: [
+      { path: 'M 30 15 L 30 112' },
+      { path: 'M 30 72 C 40 58 64 62 64 87 C 64 112 40 116 30 102' }
+    ]
+  },
+  'f': {
+    display: 'f',
+    sound: 'fff',
+    strokes: [
+      { path: 'M 62 28 C 62 16 42 14 42 30 L 42 112' },
+      { path: 'M 28 64 L 60 64' }
+    ]
+  },
+  // x-height letters sit between midline 62 and baseline 112
+  'v': {
+    display: 'v',
+    sound: 'vvv',
+    strokes: [
+      { path: 'M 28 64 L 50 112' },
+      { path: 'M 72 64 L 50 112' }
+    ]
+  },
+  'x': {
+    display: 'x',
+    sound: 'ks',
+    strokes: [
+      { path: 'M 28 64 L 72 112' },
+      { path: 'M 72 64 L 28 112' }
+    ]
+  },
+  'z': {
+    display: 'z',
+    sound: 'zzz',
+    strokes: [
+      { path: 'M 30 64 L 70 64 L 30 112 L 70 112' }
+    ]
+  },
+  // descenders dip below the baseline
+  'j': {
+    display: 'j',
+    sound: 'juh',
+    strokes: [
+      { path: 'M 54 64 L 54 120 C 54 136 36 138 30 127' },
+      { path: 'M 54 43 C 50 43 50 49 54 49 C 58 49 58 43 54 43' }
+    ]
+  },
+  'q': {
+    display: 'q',
+    sound: 'kwuh',
+    strokes: [
+      { path: 'M 62 72 C 52 58 28 62 28 87 C 28 112 52 116 62 102' },
+      { path: 'M 64 64 L 64 132 C 64 138 72 138 74 132' }
+    ]
+  },
+  'y': {
+    display: 'y',
+    sound: 'yuh',
+    strokes: [
+      { path: 'M 28 64 L 50 102' },
+      { path: 'M 72 64 L 30 138' }
     ]
   },
   '-': {

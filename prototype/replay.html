@@ -53,6 +53,62 @@
       border-radius: 99px; padding: 8px 22px; cursor: pointer;
     }
     .empty { opacity: 0.7; padding: 30px 0; }
+
+    /* ---------- word-pack editor ---------- */
+    #packs { margin-top: 44px; max-width: 760px; }
+    #packs h2 { font-size: 1.4rem; margin-bottom: 2px; }
+    #packs h2 .hint { font-size: 0.85rem; opacity: 0.55; font-weight: 500; }
+    #packs > .sub { margin-bottom: 14px; }
+    button.ghost { background: rgba(255,255,255,0.14); color: #f3eefc; }
+    button.danger { background: #ff8a8a; color: #5a1010; }
+    .pack-banner {
+      background: #b8862033; color: #ffe0b0; border: 1px solid #ffd76b55;
+      border-radius: 10px; padding: 10px 14px; margin: 12px 0; font-size: 0.9rem;
+    }
+    #pack-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+    .pack-card {
+      background: rgba(255,255,255,0.07); border-radius: 12px;
+      padding: 10px 14px; display: flex; align-items: center; gap: 12px;
+    }
+    .pack-card .pk-icon { font-size: 1.6rem; width: 36px; text-align: center; }
+    .pack-card .pk-name { font-weight: 700; flex: 1; }
+    .pack-card .pk-meta { font-size: 0.82rem; opacity: 0.7; }
+    .pack-card .pk-actions { display: flex; gap: 6px; }
+    .pack-card .pk-actions button { padding: 6px 14px; font-size: 0.85rem; }
+    #pack-editor {
+      background: rgba(255,255,255,0.05); border-radius: 14px;
+      padding: 16px 18px; margin-top: 10px;
+    }
+    #pack-editor h3 { font-size: 1.1rem; margin-bottom: 12px; }
+    .fld { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .fld > label { font-size: 0.85rem; opacity: 0.8; }
+    #pack-editor input[type=text] {
+      font-family: inherit; font-size: 1rem; padding: 8px 12px;
+      border-radius: 8px; border: 2px solid transparent;
+      background: #1f1b3d; color: #f3eefc;
+    }
+    #pack-editor input.bad { border-color: #ff8a8a; }
+    .emoji-row { display: flex; flex-wrap: wrap; gap: 4px; }
+    .emoji-row label { cursor: pointer; }
+    .emoji-row input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .emoji-row label span {
+      display: inline-block; font-size: 1.5rem; padding: 5px 7px;
+      border-radius: 10px; border: 2px solid transparent;
+    }
+    .emoji-row input:checked + span { border-color: #ffd76b; background: rgba(255,215,107,0.18); }
+    .word-rows { display: flex; flex-direction: column; gap: 10px; }
+    .word-row { display: flex; flex-direction: column; gap: 3px; }
+    .wr-main { display: flex; gap: 8px; align-items: center; }
+    .word-row .w-word { flex: 0 0 96px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.03em; }
+    .word-row .w-fact { flex: 1; min-width: 0; }
+    .word-row .w-del {
+      background: rgba(255,255,255,0.14); color: #f3eefc;
+      padding: 6px 12px; font-size: 1.1rem; line-height: 1;
+    }
+    .w-flag { color: #ff9a9a; font-size: 0.78rem; min-height: 1em; padding-left: 2px; }
+    .editor-actions { display: flex; gap: 10px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
+    .editor-actions button[disabled] { opacity: 0.4; cursor: not-allowed; }
+    .editor-msg { font-size: 0.82rem; opacity: 0.78; }
   </style>
 </head>
 <body>
@@ -68,7 +124,18 @@
       </div>
     </div>
   </div>
+  <section id="packs">
+    <h2>📚 Word packs <span class="hint">(grown-ups)</span></h2>
+    <p class="sub">Make learning topics for Emma-Grace — science, animals, anything. She picks one after she taps Play.</p>
+    <div id="pack-corrupt" class="pack-banner" hidden></div>
+    <div id="pack-list"></div>
+    <button id="pack-add" class="ghost">+ New pack</button>
+    <div id="pack-editor" hidden></div>
+  </section>
+
   <script src="js/letters.js"></script>
+  <script src="js/topics.js"></script>
   <script src="js/replay.js"></script>
+  <script src="js/topics-editor.js"></script>
 </body>
 </html>
