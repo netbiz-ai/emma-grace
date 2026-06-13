@@ -134,6 +134,28 @@
     #adv-editor input.bad { border-color: #ff8a8a; }
     #adv-editor .w-emoji { flex: 0 0 64px; text-align: center; font-size: 1.2rem; }
     #adv-editor .w-word { flex: 1; min-width: 0; }
+
+    /* ---------- Dad's voice recorder ---------- */
+    #voice { margin-top: 44px; max-width: 760px; }
+    #voice h2 { font-size: 1.4rem; margin-bottom: 2px; }
+    #voice h2 .hint { font-size: 0.85rem; opacity: 0.55; font-weight: 500; }
+    #voice > .sub { margin-bottom: 14px; }
+    #voice code { background: rgba(255,255,255,0.1); padding: 1px 5px; border-radius: 5px; }
+    #voice-count { opacity: 0.7; }
+    .voice-flag { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; margin-bottom: 12px; cursor: pointer; }
+    #voice-list { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+    .voice-group { font-size: 0.85rem; opacity: 0.6; margin: 12px 0 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .voice-row {
+      background: rgba(255,255,255,0.07); border-radius: 12px; padding: 10px 14px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .voice-row.has-clip { background: rgba(126,232,162,0.12); }
+    .voice-text { flex: 1; min-width: 160px; font-size: 0.92rem; line-height: 1.3; }
+    .voice-actions { display: flex; gap: 6px; }
+    .voice-actions button { padding: 6px 14px; font-size: 0.85rem; }
+    .voice-actions button.recording { background: #ff8a8a; color: #5a1010; animation: voice-pulse 1s ease-in-out infinite; }
+    @keyframes voice-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+    #voice-export { margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -172,12 +194,23 @@
     <div id="adv-editor" hidden></div>
   </section>
 
+  <section id="voice">
+    <h2>🎙️ Dad’s voice <span class="hint">(grown-ups)</span></h2>
+    <p class="sub">Record your own voice for the game’s little lines — the praise, cheers and greetings Emma-Grace hears most. Tap <b>● Record</b>, say the line, tap <b>■ Stop</b>. Anything you don’t record stays in the computer voice. When you’re happy, <b>Export</b> the voice pack and upload it into your site’s <code>/voice/</code> folder (same as the game). <span id="voice-count"></span></p>
+    <label class="voice-flag"><input type="checkbox" id="voice-toggle"> Use Dad’s voice in the game</label>
+    <div id="voice-msg" class="editor-msg"></div>
+    <div id="voice-list"></div>
+    <button id="voice-export" class="ghost" disabled>⬇ Export voice pack (.zip)</button>
+  </section>
+
   <script src="js/letters.js"></script>
   <script src="js/topics.js"></script>
   <script src="js/adventures.js"></script>
+  <script src="js/voice-lines.js"></script>
   <script src="js/replay.js"></script>
   <script src="js/topics-editor.js"></script>
   <script src="js/adventures-editor.js"></script>
+  <script src="js/voice-recorder.js"></script>
   <script>
     // share the game's service worker so the grown-ups page works offline too
     if ('serviceWorker' in navigator) {

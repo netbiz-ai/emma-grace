@@ -10,7 +10,7 @@
  *
  * To force every device to refresh after a deploy, bump CACHE_VERSION below.
  */
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = 'mq-cache-' + CACHE_VERSION;
 
 const PRECACHE = [
@@ -42,7 +42,11 @@ const PRECACHE = [
   'js/game.js',
   'js/replay.js',
   'js/topics-editor.js',
-  'js/adventures-editor.js'
+  'js/adventures-editor.js',
+  'js/voice-lines.js',
+  'js/voice.js',
+  'js/voice-recorder.js',
+  'voice/voice-manifest.json'
 ];
 
 self.addEventListener('install', (event) => {

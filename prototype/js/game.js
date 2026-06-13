@@ -499,6 +499,7 @@ window.MQ = window.MQ || {};
 
     $('#play-btn').onclick = async () => {
       S.unlock();                       // user gesture: unlock audio + speech
+      if (MQ.Voice) MQ.Voice.unlock();  // prime Dad's-voice player for iOS
       if (S.musicPref()) S.toggleMusic(true);
       if (!profile.quest0Done) {
         quest0();
@@ -513,6 +514,7 @@ window.MQ = window.MQ || {};
 
     $('#adventure-btn').onclick = async () => {
       S.unlock();                       // user gesture: unlock audio + speech
+      if (MQ.Voice) MQ.Voice.unlock();  // prime Dad's-voice player for iOS
       if (S.musicPref()) S.toggleMusic(true);
       if (!profile.quest0Done) { quest0(); return; }  // meet + name the unicorn first
       if (profile.unicorn) await N.speak('Adventure time, ' + profile.name + '! ' + profile.unicorn + ' is coming too!');

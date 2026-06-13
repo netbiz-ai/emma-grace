@@ -39,7 +39,7 @@ window.MQ = window.MQ || {};
    * (or immediately if speech is unavailable).
    * opts: { rate, pitch, interrupt (default true) }
    */
-  function speak(text, opts) {
+  function ttsSpeak(text, opts) {
     opts = opts || {};
     return new Promise((resolve) => {
       if (!('speechSynthesis' in window)) return resolve();
@@ -55,6 +55,18 @@ window.MQ = window.MQ || {};
       // safety: resolve even if onend never fires (some Android quirks)
       setTimeout(resolve, Math.max(2500, text.length * 90));
     });
+  }
+
+  /* Speak a line. Plays Dad's recorded clip when one exists for this exact line
+   * (MQ.Voice), otherwise falls back to TTS. A clip that fails to play also falls
+   * back, so narration never goes silent. Same Promise contract as before. */
+  function speak(text, opts) {
+    opts = opts || {};
+    if (MQ.Voice && MQ.Voice.has(text)) {
+      if (opts.interrupt !== false && 'speechSynthesis' in window) speechSynthesis.cancel();
+      return MQ.Voice.play(text).catch(function () { return ttsSpeak(text, opts); });
+    }
+    return ttsSpeak(text, opts);
   }
 
   function stop() {
