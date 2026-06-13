@@ -178,5 +178,13 @@
   <script src="js/replay.js"></script>
   <script src="js/topics-editor.js"></script>
   <script src="js/adventures-editor.js"></script>
+  <script>
+    // share the game's service worker so the grown-ups page works offline too
+    if ('serviceWorker' in navigator) {
+      addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>
