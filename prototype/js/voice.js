@@ -49,6 +49,9 @@ window.MQ = window.MQ || {};
           req.result.createObjectStore('clips');
         }
       };
+      req.onerror = function () {
+        console.warn('MQ.Voice: IDB unavailable', req.error);
+      };
       req.onsuccess = function () {
         const d = req.result;
         if (!d.objectStoreNames.contains('clips')) return;
@@ -59,6 +62,7 @@ window.MQ = window.MQ || {};
           const c = e.target.result;
           if (c) { out[c.key] = c.value; c.continue(); } else { idbClips = out; }
         };
+        cur.onerror = function () { idbClips = out; };
       };
     } catch (e) { /* IndexedDB unavailable — ignore */ }
   }
