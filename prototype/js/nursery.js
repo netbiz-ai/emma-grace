@@ -37,7 +37,8 @@ window.MQ = window.MQ || {};
     play:  'Wheee! That tickles!',
     sleep: 'Nighty night...',
     poor:  'I need more star-dust. Let us write some words!',
-    dress: 'Make me beautiful!'
+    dress: 'Make me beautiful!',
+    pet:   'Hehe! That tickles!'
   };
 
   const SHOP = [
@@ -127,13 +128,18 @@ window.MQ = window.MQ || {};
     root = document.getElementById('screen-nursery');
     root.innerHTML = '';
 
-    const back = el('button', 'nursery-back', '⬅');
-    back.setAttribute('aria-label', 'Back home');
-    back.onclick = () => { S.pop(); setDressing(false); if (MQ.Game) MQ.Game.show('title'); };
-    root.appendChild(back);
-
     const stage = el('div', 'nursery-stage');
     root.appendChild(stage);
+
+    // a framed family photo on the nursery wall (cozy personal touch)
+    const photo = document.createElement('figure');
+    photo.className = 'nursery-photo';
+    const pimg = document.createElement('img');
+    pimg.src = 'img/family.jpg';
+    pimg.alt = 'Our family';
+    pimg.loading = 'lazy';
+    photo.appendChild(pimg);
+    stage.appendChild(photo);
 
     dustEl = el('div', 'stardust-counter');
     dustEl.appendChild(el('span', 'sd-star', '⭐'));
@@ -207,8 +213,25 @@ window.MQ = window.MQ || {};
 
     petUnicorn = MQ.createUnicorn(unicornHost);
     if (MQ.Game && MQ.Game.hasBow && MQ.Game.hasBow()) petUnicorn.setBow(true);
+    unicornHost.style.cursor = 'pointer';
+    unicornHost.addEventListener('pointerdown', petTap);
 
     built = true;
+  }
+
+  /* touchable unicorn: stroke/tap her and she reacts live */
+  let petTaps = 0;
+  function petTap() {
+    if (!pet.hatched) return;
+    petTaps++;
+    burst(unicornHost);
+    petUnicorn.setState('happy');
+    bump('happy', 5);
+    save();
+    renderMeters();
+    S.pop();
+    if (petTaps % 4 === 1) { caption(LINE.pet); N.speak(LINE.pet); } // giggle, not every tap
+    setTimeout(updateMood, 1200);
   }
 
   /* ---------- dress-up studio (Phase 2) ---------- */

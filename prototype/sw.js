@@ -10,7 +10,7 @@
  *
  * To force every device to refresh after a deploy, bump CACHE_VERSION below.
  */
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const CACHE_NAME = 'mq-cache-' + CACHE_VERSION;
 
 const PRECACHE = [
@@ -22,6 +22,7 @@ const PRECACHE = [
   'apple-touch-icon.png',
   'icon-192.png',
   'icon-512.png',
+  'img/family.jpg',
   'css/game.css',
   'css/nursery.css',
   'css/arcade.css',

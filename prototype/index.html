@@ -105,6 +105,10 @@
 
   <!-- ===== screens ===== -->
   <section id="screen-title" class="screen active">
+    <figure class="family-frame" id="title-family">
+      <img src="img/family.jpg" alt="Emma-Grace and her family at the beach" loading="lazy">
+      <figcaption>Our family 💖</figcaption>
+    </figure>
     <h1 id="title-heading">Unicorn Academy</h1>
     <p class="subtitle">✨ Magic Quill ✨</p>
     <div id="title-unicorn"></div>
@@ -186,6 +190,21 @@
     <div id="bubble">…</div>
     <div id="unicorn-slot"></div>
   </aside>
+
+  <!-- universal navigation: jump to any activity from any screen (hidden on the title hub) -->
+  <button id="nav-home" aria-label="Go to menu">🏠</button>
+  <div id="nav-menu" hidden>
+    <div class="nav-panel">
+      <h2>Where to?</h2>
+      <div class="nav-grid">
+        <button class="topic-btn" data-dest="write"><span class="emoji">✏️</span><span class="label">Write</span></button>
+        <button class="topic-btn" data-dest="outside"><span class="emoji">🌞</span><span class="label">Go outside</span></button>
+        <button class="topic-btn" data-dest="unicorn"><span class="emoji">🦄</span><span class="label">My unicorn</span></button>
+        <button class="topic-btn" data-dest="arcade"><span class="emoji">🎮</span><span class="label">Games</span></button>
+      </div>
+      <button id="nav-close" class="mode-btn">✖ Stay here</button>
+    </div>
+  </div>
 
   <button id="music-btn" aria-label="Music on or off">♪</button>
   <a id="parent-link" href="replay.html" aria-label="Parent replay page">✦ grown-ups</a>

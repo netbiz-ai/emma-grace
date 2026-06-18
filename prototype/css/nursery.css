@@ -19,16 +19,18 @@
   box-shadow: 0 14px 40px rgba(40, 25, 60, 0.35);
 }
 
-.nursery-back {
-  position: fixed; top: 1.5vh; left: 1.5vw; z-index: 9;
-  width: clamp(44px, 7vmin, 64px); height: clamp(44px, 7vmin, 64px);
-  border-radius: 50%; border: none;
-  background: rgba(255, 250, 242, 0.9); color: var(--ink);
-  font-size: clamp(1.2rem, 3vmin, 1.7rem); cursor: pointer;
-  box-shadow: 0 4px 12px rgba(74, 54, 80, 0.25);
-  -webkit-tap-highlight-color: transparent;
+/* framed family photo hung on the nursery wall */
+.nursery-photo {
+  position: absolute; top: 1.5vh; left: 1.2vw; z-index: 2; margin: 0;
+  width: clamp(52px, 12vmin, 88px);
+  background: #fff; padding: 4px 4px 3px; border-radius: 8px;
+  box-shadow: 0 5px 14px rgba(40, 25, 60, 0.3);
+  transform: rotate(-5deg);
 }
-.nursery-back:active { transform: translateY(2px); }
+.nursery-photo img {
+  display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover;
+  border-radius: 5px; image-orientation: from-image;
+}
 
 .stardust-counter {
   align-self: flex-end;
@@ -80,7 +82,7 @@
 .nursery-egg.crack-3 { opacity: 0.6; }
 
 /* the unicorn (shown after hatching) */
-.nursery-unicorn { display: none; width: 100%; }
+.nursery-unicorn { display: none; width: 100%; position: relative; }
 .nursery-unicorn .unicorn-svg { width: 100%; height: auto; }
 /* growth stages scale the whole sprite (transform on .unicorn is otherwise unused) */
 .nursery-unicorn .unicorn { transform: scale(var(--u-scale, 1)); transform-origin: bottom center; transition: transform 0.6s cubic-bezier(.34, 1.56, .64, 1); }

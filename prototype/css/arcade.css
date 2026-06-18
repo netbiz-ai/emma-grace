@@ -5,17 +5,6 @@
 /* the arcade has its own scene; hide the persistent companion rail here */
 #screen-arcade.active ~ #rail { display: none; }
 
-.arcade-back {
-  position: fixed; top: 1.5vh; left: 1.5vw; z-index: 9;
-  width: clamp(44px, 7vmin, 64px); height: clamp(44px, 7vmin, 64px);
-  border-radius: 50%; border: none;
-  background: rgba(255, 250, 242, 0.9); color: var(--ink);
-  font-size: clamp(1.2rem, 3vmin, 1.7rem); cursor: pointer;
-  box-shadow: 0 4px 12px rgba(74, 54, 80, 0.25);
-  -webkit-tap-highlight-color: transparent;
-}
-.arcade-back:active { transform: translateY(2px); }
-
 #screen-arcade .stardust-counter { position: fixed; top: 1.5vh; right: 1.5vw; z-index: 9; }
 
 /* ---------- menu ---------- */

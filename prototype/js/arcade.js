@@ -256,11 +256,6 @@ window.MQ = window.MQ || {};
     root = document.getElementById('screen-arcade');
     root.innerHTML = '';
 
-    const back = el('button', 'arcade-back', '⬅');
-    back.setAttribute('aria-label', 'Back home');
-    back.onclick = () => { S.pop(); stop(); if (MQ.Game) MQ.Game.show('title'); };
-    root.appendChild(back);
-
     dustEl = el('div', 'stardust-counter');
     dustEl.appendChild(el('span', 'sd-star', '⭐'));
     dustEl.appendChild(el('span', 'sd-num', '0'));
@@ -332,5 +327,5 @@ window.MQ = window.MQ || {};
     showMenu();
   }
 
-  MQ.Arcade = { open: open, games: GAMES };
+  MQ.Arcade = { open: open, leave: stop, games: GAMES };
 })();

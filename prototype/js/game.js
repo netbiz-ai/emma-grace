@@ -502,6 +502,23 @@ window.MQ = window.MQ || {};
     b.textContent = profile.mode === 'free' ? '⭐ All by myself!' : '✏️ With tracing';
   }
 
+  /* ---------- universal navigation ----------
+   * Lets the child jump to any activity from any screen. Tears down whatever is
+   * running first (writing engine, arcade loop, narration) so nothing lingers. */
+  function teardownCurrent() {
+    if (engine) { try { engine.destroy(); } catch (e) {} engine = null; }
+    if (MQ.Arcade && MQ.Arcade.leave) MQ.Arcade.leave();
+    if (N && N.stop) N.stop();
+  }
+  function goTo(dest) {
+    teardownCurrent();
+    if (dest === 'write') { if (!profile.quest0Done) { quest0(); return; } showTopicPicker(); }
+    else if (dest === 'outside') { if (!profile.quest0Done) { quest0(); return; } showAdventurePicker(); }
+    else if (dest === 'unicorn') { MQ.Nursery.open(); }
+    else if (dest === 'arcade') { MQ.Arcade.open(); }
+    else { showScreen('title'); }
+  }
+
   /* ---------- boot ---------- */
   function boot() {
     unicorn = MQ.createUnicorn($('#unicorn-slot'));
@@ -568,6 +585,20 @@ window.MQ = window.MQ || {};
       const on = S.toggleMusic();
       e.currentTarget.classList.toggle('off', !on);
     };
+
+    // universal navigation launcher — reachable from every screen but the title
+    const navMenu = $('#nav-menu');
+    $('#nav-home').onclick = () => {
+      S.unlock();
+      if (MQ.Voice) MQ.Voice.unlock();
+      S.pop();
+      navMenu.hidden = false;
+    };
+    $('#nav-close').onclick = () => { S.pop(); navMenu.hidden = true; };
+    navMenu.addEventListener('click', (e) => { if (e.target === navMenu) navMenu.hidden = true; });
+    navMenu.querySelectorAll('[data-dest]').forEach((b) => {
+      b.onclick = () => { S.pop(); navMenu.hidden = true; goTo(b.dataset.dest); };
+    });
   }
 
   document.addEventListener('DOMContentLoaded', boot);
