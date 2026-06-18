@@ -6,6 +6,9 @@
  * Uses ONE shared <audio> element, primed on the first user gesture (unlock) so
  * iOS Safari allows the later programmatic plays. Clips are short; the network-first
  * service worker caches them after first play, so it works offline too.
+ *
+ * Also reads from IndexedDB ('mq-voice' store written by voice-recorder.js) so that
+ * locally-recorded clips play immediately without an export/upload step.
  */
 window.MQ = window.MQ || {};
 
@@ -14,6 +17,7 @@ window.MQ = window.MQ || {};
   const MANIFEST = BASE + 'voice-manifest.json';
 
   let manifest = null;      // { v, rate, lines: { id: filename } }
+  let idbClips = {};        // id -> Blob (from IndexedDB, no server upload needed)
   let audio = null;         // shared HTMLAudioElement
   let unlocked = false;
 
@@ -32,6 +36,35 @@ window.MQ = window.MQ || {};
         return manifest;
       })
       .catch(function () { manifest = { v: 1, lines: {} }; return manifest; });
+  }
+
+  /* Warm in-memory cache of clips recorded via replay.html (voice-recorder.js).
+   * Mirrors voice-recorder.js's open pattern (same name, version, store) so that
+   * whichever module opens the DB first leaves a usable 'clips' store behind. */
+  function loadIdb() {
+    try {
+      const req = indexedDB.open('mq-voice', 1);
+      req.onupgradeneeded = function () {
+        if (!req.result.objectStoreNames.contains('clips')) {
+          req.result.createObjectStore('clips');
+        }
+      };
+      req.onerror = function () {
+        console.warn('MQ.Voice: IDB unavailable', req.error);
+      };
+      req.onsuccess = function () {
+        const d = req.result;
+        if (!d.objectStoreNames.contains('clips')) return;
+        const tx = d.transaction('clips', 'readonly');
+        const out = {};
+        const cur = tx.objectStore('clips').openCursor();
+        cur.onsuccess = function (e) {
+          const c = e.target.result;
+          if (c) { out[c.key] = c.value; c.continue(); } else { idbClips = out; }
+        };
+        cur.onerror = function () { idbClips = out; };
+      };
+    } catch (e) { /* IndexedDB unavailable — ignore */ }
   }
 
   function el() {
@@ -60,26 +93,29 @@ window.MQ = window.MQ || {};
     return (typeof f === 'string' && f) ? f : null;
   }
 
-  function has(text) { return !!fileFor(text); }
+  function idbFor(text) {
+    if (!enabled() || !MQ.VoiceLines) return null;
+    const id = MQ.VoiceLines.idFor(text);
+    return (id && idbClips[id]) ? idbClips[id] : null;
+  }
 
-  /* play the clip for `text`; resolves when it ends, rejects if it can't play
-   * (so narrator can fall back to TTS). Interrupts any clip already playing. */
-  function play(text) {
-    const file = fileFor(text);
-    if (!file) return Promise.reject(new Error('no clip'));
+  function has(text) { return !!fileFor(text) || !!idbFor(text); }
+
+  function playAudio(src, isBlobUrl) {
     const a = el();
     return new Promise(function (resolve, reject) {
       let done = false;
       const finish = function (ok) {
         if (done) return; done = true;
         a.onended = a.onerror = null;
+        if (isBlobUrl) URL.revokeObjectURL(src);
         ok ? resolve() : reject(new Error('clip failed'));
       };
       a.onended = function () { finish(true); };
       a.onerror = function () { finish(false); };
       try {
         a.pause();
-        a.src = BASE + file;
+        a.src = src;
         a.currentTime = 0;
         const p = a.play();
         if (p && p.catch) p.catch(function () { finish(false); });
@@ -89,10 +125,22 @@ window.MQ = window.MQ || {};
     });
   }
 
+  /* play the clip for `text`; resolves when it ends, rejects if it can't play
+   * (so narrator can fall back to TTS). Interrupts any clip already playing.
+   * Server manifest takes priority; locally-recorded IndexedDB clips are fallback. */
+  function play(text) {
+    const file = fileFor(text);
+    if (file) return playAudio(BASE + file, false);
+    const blob = idbFor(text);
+    if (blob) return playAudio(URL.createObjectURL(blob), true);
+    return Promise.reject(new Error('no clip'));
+  }
+
   function stop() { if (audio) { try { audio.pause(); } catch (e) {} } }
 
   MQ.Voice = {
     load: load,
+    loadIdb: loadIdb,
     has: has,
     play: play,
     stop: stop,
@@ -101,5 +149,6 @@ window.MQ = window.MQ || {};
     setEnabled: setEnabled
   };
 
-  load(); // warm the manifest at startup (narration happens after the Play tap)
+  load();    // warm the server manifest at startup
+  loadIdb(); // warm locally-recorded clips from IndexedDB
 })();
