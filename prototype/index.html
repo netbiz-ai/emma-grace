@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="css/fonts.css">
 
   <link rel="stylesheet" href="css/game.css">
+  <link rel="stylesheet" href="css/nursery.css">
 </head>
 <body class="sky-day">
 
@@ -108,6 +109,7 @@
     <div id="title-unicorn"></div>
     <button id="play-btn" class="big-btn">▶ Play</button>
     <button id="adventure-btn" class="big-btn outside-btn">🌞 Go outside!</button>
+    <button id="nursery-btn" class="big-btn nursery-btn">🦄 My unicorn</button>
     <button id="mode-btn" class="mode-btn">✏️ With tracing</button>
   </section>
 
@@ -165,10 +167,14 @@
     <div class="panel">
       <div class="sticker" id="complete-sticker">🎀</div>
       <h2 id="complete-msg">You earned a magic bow!</h2>
+      <p id="complete-dust"></p>
       <div id="sticker-row" aria-label="Sticker collection"></div>
       <button id="again-btn" class="big-btn">Play again</button>
     </div>
   </section>
+
+  <!-- Unicorn Nursery (hatch & care) — built by js/nursery.js -->
+  <section id="screen-nursery" class="screen"></section>
 
   <!-- persistent unicorn + speech (left side, clear of her writing hand) -->
   <aside id="rail">
@@ -191,6 +197,7 @@
   <script src="js/narrator.js"></script>
   <script src="js/sounds.js"></script>
   <script src="js/unicorn.js"></script>
+  <script src="js/nursery.js"></script>
   <script src="js/game.js"></script>
   <script>
     // register the service worker for offline play + installability

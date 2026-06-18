@@ -101,6 +101,11 @@ MQ.createUnicorn = function (container) {
     setBow(on) {
       const bow = wrap.querySelector('.u-bow');
       if (bow) bow.style.opacity = on ? 1 : 0;
+    },
+    // growth stage for the nursery pet: 0 baby | 1 little | 2 big (CSS scales it)
+    setStage(stage) {
+      wrap.classList.remove('u-stage-0', 'u-stage-1', 'u-stage-2');
+      wrap.classList.add('u-stage-' + (stage || 0));
     }
   };
 };
