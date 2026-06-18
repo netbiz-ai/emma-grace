@@ -14,7 +14,13 @@ _2026-06-18_
 - **Phase 1 (implemented):** Hatch ceremony + Care hub (feed / brush / play / tuck-in) + 3 gentle meters + visible growth (Baby → Little → Big) + star-dust earned from writing quests + a treat shop.
 - **Phase 2 (implemented):** Dress-Up & Decorate studio — recolour mane & horn, toggle accessories (crown/bow/flower/shades/scarf/sparkles), decorate the stable. Open-ended, no win/lose; the live pet is the preview; the chosen look shows on every sprite (nursery, title, companion) and persists.
 - **Phase 3 (implemented — addresses "the game is too static"):** Unicorn Arcade — a menu of relaxed, no-fail mini-games for active play. Launch set: 🌟 Star Catch (drag to catch falling stars), 🫧 Bubble Pop (tap rising bubbles, golden worth more), 🦋 Peek-a-Boo (tap friends before they hide). Scores convert to star-dust (≤5/round) feeding the nursery loop.
-- **Phase 4 (future):** Touchable unicorn + drag-and-drop care + living world; hatch/collect more unicorns.
+- **Phase 4 (implemented):** Universal navigation (🏠 quick-switch on every screen), touchable nursery unicorn, and a **living world** — ambient drifting clouds, fluttering butterflies and occasional shooting stars behind every screen, plus tap-the-sky sparkle magic on the title. Family photo added (home polaroid + nursery wall).
+- **Phase 5 (future):** Drag-and-drop care (drag food/brush), hatch/collect more unicorns.
+
+### Phase 4 — living world notes
+- `js/living.js` (`MQ.Living`) + `css/living.css`; a pointer-events:none `#living` layer at z-index 0 (above scenery, below the z-index-5 screens) so it never blocks taps and works across the whole app.
+- Clouds/butterflies are pure CSS animations (butterfly = wandering wrapper + flapping inner span); only the rare shooting star and short-lived tap sparkles use JS timers. Clouds fade at night (`body.sky-night`). Honours `prefers-reduced-motion`.
+- Title-screen taps on empty sky call `sprinkle(x,y)` (skips buttons/photo/unicorn) and sometimes release a butterfly. `sw.js` → v8.
 
 ### Phase 3 notes
 - `js/arcade.js` (`MQ.Arcade`) + `css/arcade.css`; new `#screen-arcade` and a "🎮 Play games" title tile; `sw.js` → v6.

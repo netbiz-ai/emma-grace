@@ -10,7 +10,7 @@
  *
  * To force every device to refresh after a deploy, bump CACHE_VERSION below.
  */
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const CACHE_NAME = 'mq-cache-' + CACHE_VERSION;
 
 const PRECACHE = [
@@ -26,6 +26,7 @@ const PRECACHE = [
   'css/game.css',
   'css/nursery.css',
   'css/arcade.css',
+  'css/living.css',
   'css/fonts.css',
   'fonts/baloo2-500-latin.woff2',
   'fonts/baloo2-500-latin-ext.woff2',
@@ -42,6 +43,7 @@ const PRECACHE = [
   'js/narrator.js',
   'js/sounds.js',
   'js/unicorn.js',
+  'js/living.js',
   'js/nursery.js',
   'js/arcade.js',
   'js/game.js',
