@@ -1,1 +1,24 @@
-{ "v": 1, "lines": {} }
+{
+  "v": 1,
+  "rate": 16000,
+  "lines": {
+    "enc-almost": "enc-almost.wav",
+    "enc-goodtry": "enc-goodtry.wav",
+    "enc-nearly": "enc-nearly.wav",
+    "enc-youcandoit": "enc-youcandoit.wav",
+    "praise-amazing": "praise-amazing.wav",
+    "praise-beautiful": "praise-beautiful.wav",
+    "praise-hooray": "praise-hooray.wav",
+    "praise-magical": "praise-magical.wav",
+    "praise-sparkly": "praise-sparkly.wav",
+    "praise-wonderful": "praise-wonderful.wav",
+    "praise-youdidit": "praise-youdidit.wav",
+    "nudge-dot": "nudge-dot.wav",
+    "demo-star": "demo-star.wav",
+    "hello": "hello.wav",
+    "naming": "naming.wav",
+    "learn-today": "learn-today.wav",
+    "adventure-today": "adventure-today.wav",
+    "found-back": "found-back.wav"
+  }
+}

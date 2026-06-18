@@ -46,7 +46,26 @@ const PRECACHE = [
   'js/voice-lines.js',
   'js/voice.js',
   'js/voice-recorder.js',
-  'voice/voice-manifest.json'
+  'voice/voice-manifest.json',
+  // Dad's recorded voice clips — precached so they play offline from first launch
+  'voice/praise-beautiful.wav',
+  'voice/praise-wonderful.wav',
+  'voice/praise-youdidit.wav',
+  'voice/praise-amazing.wav',
+  'voice/praise-sparkly.wav',
+  'voice/praise-hooray.wav',
+  'voice/praise-magical.wav',
+  'voice/enc-almost.wav',
+  'voice/enc-goodtry.wav',
+  'voice/enc-nearly.wav',
+  'voice/enc-youcandoit.wav',
+  'voice/nudge-dot.wav',
+  'voice/demo-star.wav',
+  'voice/hello.wav',
+  'voice/naming.wav',
+  'voice/learn-today.wav',
+  'voice/adventure-today.wav',
+  'voice/found-back.wav'
 ];
 
 self.addEventListener('install', (event) => {
