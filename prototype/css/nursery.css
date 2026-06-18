@@ -197,3 +197,85 @@
 /* star-dust earned line on the complete screen */
 #complete-dust { font-weight: 800; color: #8a5a00; font-size: clamp(1rem, 2.8vmin, 1.5rem); }
 #complete-dust:empty { display: none; }
+
+/* ========== Phase 2: Dress-Up & Decorate studio ========== */
+
+/* the "Dress up!" button (pink-purple sibling of a care button) */
+.nursery-dress-btn {
+  font-family: inherit; font-weight: 800; cursor: pointer;
+  color: #5a2a8a; border: none; border-radius: 999px;
+  padding: 0.5em 1.4em; font-size: clamp(1rem, 2.8vmin, 1.5rem);
+  background: linear-gradient(180deg, #e7d3ff, #c9a8ff 60%, #b189ff);
+  box-shadow: 0 6px 0 #9a6ee0, 0 10px 22px rgba(74, 54, 80, 0.2);
+  -webkit-tap-highlight-color: transparent;
+}
+.nursery-dress-btn:active { transform: translateY(4px); }
+
+/* dress-up accessory emoji ease in/out */
+.acc { transition: opacity 0.25s; }
+
+/* stable décor — positioned around the scene, hidden until chosen */
+.nursery-decor { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.decor-item {
+  position: absolute; opacity: 0; transform: scale(0.4);
+  font-size: clamp(1.6rem, 6vmin, 3rem); line-height: 1;
+  transition: opacity 0.3s, transform 0.3s cubic-bezier(.34, 1.56, .64, 1);
+}
+.decor-item.on { opacity: 1; transform: scale(1); }
+.decor-balloons { top: 1%; left: 3%; }
+.decor-rainbow  { top: -2%; left: 50%; transform: translateX(-50%) scale(0.4); font-size: clamp(2.4rem, 9vmin, 4.4rem); }
+.decor-rainbow.on { transform: translateX(-50%) scale(1); }
+.decor-stars    { top: 3%; right: 5%; }
+.decor-flowers  { bottom: 1%; left: 2%; }
+.decor-teddy    { bottom: 0%; right: 4%; }
+
+/* studio panel — shown only in dressing mode (replaces care UI) */
+.nursery-studio { display: none; flex-direction: column; gap: 1vh; width: min(94%, 460px); }
+#screen-nursery.dressing .nursery-meters,
+#screen-nursery.dressing .nursery-actions,
+#screen-nursery.dressing .nursery-shop,
+#screen-nursery.dressing .nursery-dress-btn { display: none; }
+#screen-nursery.dressing .nursery-studio { display: flex; }
+/* before hatching, only the egg invites a tap */
+#screen-nursery:not(.is-hatched) .nursery-dress-btn,
+#screen-nursery:not(.is-hatched) .nursery-studio { display: none; }
+
+.studio-section { display: flex; flex-direction: column; gap: 0.5vh; }
+.studio-title { font-weight: 800; color: var(--ink); font-size: clamp(0.85rem, 2.2vmin, 1.15rem); text-align: left; }
+.studio-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2vmin; }
+
+.swatch {
+  width: clamp(40px, 9vmin, 60px); height: clamp(40px, 9vmin, 60px);
+  border-radius: 50%; cursor: pointer;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 3px 8px rgba(74, 54, 80, 0.3);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s;
+}
+.swatch:active { transform: scale(0.92); }
+.swatch.selected { outline: 3px solid var(--gold); outline-offset: 2px; transform: scale(1.08); }
+
+.chip {
+  font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  width: clamp(46px, 10vmin, 66px); height: clamp(46px, 10vmin, 66px);
+  border-radius: 18px; border: 3px solid transparent;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 3px 8px rgba(74, 54, 80, 0.2);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s;
+}
+.chip:active { transform: scale(0.92); }
+.chip-icon { font-size: clamp(1.5rem, 4.5vmin, 2.4rem); line-height: 1; }
+.chip.on { border-color: var(--gold); background: linear-gradient(180deg, #fff3c4, #ffe9a8); }
+
+.studio-done {
+  align-self: center;
+  font-family: inherit; font-weight: 800; cursor: pointer;
+  color: #7a4a12; border: none; border-radius: 999px;
+  padding: 0.45em 1.8em; font-size: clamp(1.1rem, 3vmin, 1.6rem);
+  background: linear-gradient(180deg, #ffe9a8, var(--gold) 60%, #ffc24d);
+  box-shadow: 0 6px 0 #d99b2b, 0 10px 22px rgba(0, 0, 0, 0.2);
+  -webkit-tap-highlight-color: transparent;
+}
+.studio-done:active { transform: translateY(4px); }

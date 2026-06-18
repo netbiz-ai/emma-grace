@@ -10,7 +10,7 @@
  *
  * To force every device to refresh after a deploy, bump CACHE_VERSION below.
  */
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = 'mq-cache-' + CACHE_VERSION;
 
 const PRECACHE = [

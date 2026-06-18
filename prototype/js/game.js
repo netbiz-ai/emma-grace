@@ -506,6 +506,8 @@ window.MQ = window.MQ || {};
     unicorn = MQ.createUnicorn($('#unicorn-slot'));
     const titleUnicorn = MQ.createUnicorn($('#title-unicorn'));
     if (profile.stickers.includes('🎀')) { unicorn.setBow(true); titleUnicorn.setBow(true); }
+    // paint every sprite with her saved dress-up look (nursery owns it)
+    if (MQ.setUnicornLook && MQ.Pet && MQ.Pet.getLook) MQ.setUnicornLook(MQ.Pet.getLook());
 
     $('#title-heading').textContent = profile.quest0Done
       ? 'Welcome back, ' + profile.name + '!'

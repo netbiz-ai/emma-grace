@@ -1,19 +1,19 @@
-/* Magic Quill — Unicorn Nursery (Phase 1: Hatch & Care).
+/* Magic Quill — Unicorn Nursery.
  *
- * A cozy hub where the child hatches her very own baby unicorn from a magic egg,
- * then feeds, brushes, plays with and tucks it in. The unicorn VISIBLY grows
- * (Baby → Little → Big). Writing quests earn star-dust (MQ.Economy), spent here
- * on treats.
+ * Phase 1 — Hatch & Care: hatch a baby unicorn from a magic egg, then feed,
+ *   brush, play with and tuck it in. It VISIBLY grows (Baby → Little → Big).
+ *   Writing quests earn star-dust (MQ.Economy), spent here on treats.
+ * Phase 2 — Dress-Up & Decorate studio: recolour the unicorn's mane and horn,
+ *   add accessories (crown, bow, flowers, shades…) and decorate the stable.
+ *   Open-ended, no win/lose; the live pet IS the preview.
  *
- * RELAXED BY DESIGN (research guardrail): meters drift down only gently over real
- * time and FLOOR at a happy "a snack would be lovely" — they never empty, the
- * unicorn never gets sad/sick, and there is no neglect/guilt/"game-over". The
- * loop is all positive: growth, moods, rewards.
+ * RELAXED BY DESIGN (research guardrail): meters drift down only gently over
+ * real time and FLOOR at a happy "a snack would be lovely" — they never empty,
+ * the unicorn never gets sad/sick, and there is no neglect/guilt/"game-over".
  *
  * Pet state lives in its own localStorage key `mq_pet`, owned entirely by this
- * module. It talks to the rest of the game only through two tiny bridges that
- * game.js publishes: MQ.Economy (star-dust) and MQ.Game (navigation + names).
- */
+ * module. It talks to the rest of the game through MQ.Economy (star-dust) and
+ * MQ.Game (navigation + names), and drives the sprite via MQ.setUnicornLook. */
 window.MQ = window.MQ || {};
 
 (function () {
@@ -36,7 +36,8 @@ window.MQ = window.MQ || {};
     brush: 'Ooh, so sparkly!',
     play:  'Wheee! That tickles!',
     sleep: 'Nighty night...',
-    poor:  'I need more star-dust. Let us write some words!'
+    poor:  'I need more star-dust. Let us write some words!',
+    dress: 'Make me beautiful!'
   };
 
   const SHOP = [
@@ -44,6 +45,29 @@ window.MQ = window.MQ || {};
     { icon: '🫧', label: 'Bubbles', cost: 2, meter: 'sparkle', boost: 40, line: LINE.brush },
     { icon: '🎉', label: 'Party',   cost: 3, meter: 'happy',   boost: 40, growth: 3, line: LINE.play }
   ];
+
+  /* dress-up options. Mane/horn colour palettes come from MQ.UnicornLook (single
+   * source of truth, shared with the sprite). Accessory keys match the sprite's
+   * data-acc attributes; décor keys match .decor-* scene elements below. */
+  const ACCESSORIES = [
+    { key: 'crown',  icon: '👑', label: 'Crown' },
+    { key: 'bow',    icon: '🎀', label: 'Bow' },
+    { key: 'flower', icon: '🌸', label: 'Flower' },
+    { key: 'shades', icon: '🕶️', label: 'Shades' },
+    { key: 'scarf',  icon: '🧣', label: 'Scarf' },
+    { key: 'stars',  icon: '✨', label: 'Sparkles' }
+  ];
+  const DECOR = [
+    { key: 'balloons', icon: '🎈' },
+    { key: 'rainbow',  icon: '🌈' },
+    { key: 'stars',    icon: '⭐' },
+    { key: 'flowers',  icon: '🌷' },
+    { key: 'teddy',    icon: '🧸' }
+  ];
+  const SWATCH = { // little preview gradient for a colour key
+    mane: (cols) => 'linear-gradient(135deg,' + cols.join(',') + ')',
+    horn: (cols) => 'linear-gradient(180deg,' + cols[1] + ',' + cols[0] + ')'
+  };
 
   /* ---------- pet state (mq_pet) ---------- */
   function load() {
@@ -58,6 +82,10 @@ window.MQ = window.MQ || {};
     load()
   );
   if (!pet.meters || typeof pet.meters !== 'object') pet.meters = { tummy: 70, sparkle: 70, happy: 70 };
+  if (!pet.look || typeof pet.look !== 'object') pet.look = {};
+  pet.look = Object.assign({ mane: 'rainbow', horn: 'gold', accessories: [], decor: [] }, pet.look);
+  if (!Array.isArray(pet.look.accessories)) pet.look.accessories = [];
+  if (!Array.isArray(pet.look.decor)) pet.look.decor = [];
   function save() { try { localStorage.setItem('mq_pet', JSON.stringify(pet)); } catch (e) {} }
 
   const clamp = (v) => Math.max(0, Math.min(100, v));
@@ -82,9 +110,11 @@ window.MQ = window.MQ || {};
   /* ---------- bridges to the rest of the game (read at call time) ---------- */
   function petName() { return (MQ.Game && MQ.Game.unicornName && MQ.Game.unicornName()) || 'your unicorn'; }
   function dust() { return (MQ.Economy && MQ.Economy.getStardust && MQ.Economy.getStardust()) || 0; }
+  function applyLook() { if (MQ.setUnicornLook) MQ.setUnicornLook(pet.look); applyDecor(); }
 
   /* ---------- DOM ---------- */
-  let root, eggEl, unicornHost, meterEls = {}, captionEl, dustEl, nightEl, petUnicorn;
+  let root, eggEl, unicornHost, decorLayer, meterEls = {}, captionEl, dustEl, nightEl, studioEl, petUnicorn;
+  let swatchBtns = { mane: {}, horn: {} }, chipBtns = { accessories: {}, decor: {} };
   let built = false, eggTaps = 0;
   const el = (tag, cls, txt) => {
     const e = document.createElement(tag);
@@ -99,7 +129,7 @@ window.MQ = window.MQ || {};
 
     const back = el('button', 'nursery-back', '⬅');
     back.setAttribute('aria-label', 'Back home');
-    back.onclick = () => { S.pop(); if (MQ.Game) MQ.Game.show('title'); };
+    back.onclick = () => { S.pop(); setDressing(false); if (MQ.Game) MQ.Game.show('title'); };
     root.appendChild(back);
 
     const stage = el('div', 'nursery-stage');
@@ -115,6 +145,10 @@ window.MQ = window.MQ || {};
 
     const scene = el('div', 'nursery-scene');
     stage.appendChild(scene);
+
+    decorLayer = el('div', 'nursery-decor');
+    DECOR.forEach((d) => decorLayer.appendChild(el('span', 'decor-item decor-' + d.key, d.icon)));
+    scene.appendChild(decorLayer);
 
     nightEl = el('div', 'nursery-night', '💤');
     scene.appendChild(nightEl);
@@ -151,6 +185,10 @@ window.MQ = window.MQ || {};
       });
     stage.appendChild(actions);
 
+    const dressBtn = el('button', 'nursery-dress-btn', '✨ Dress up!');
+    dressBtn.onclick = () => { S.pop(); setDressing(true); };
+    stage.appendChild(dressBtn);
+
     const shop = el('div', 'nursery-shop');
     shop.appendChild(el('div', 'shop-title', '✨ Star-dust treats ✨'));
     const shopRow = el('div', 'shop-row');
@@ -165,10 +203,114 @@ window.MQ = window.MQ || {};
     shop.appendChild(shopRow);
     stage.appendChild(shop);
 
+    stage.appendChild(buildStudio());
+
     petUnicorn = MQ.createUnicorn(unicornHost);
     if (MQ.Game && MQ.Game.hasBow && MQ.Game.hasBow()) petUnicorn.setBow(true);
 
     built = true;
+  }
+
+  /* ---------- dress-up studio (Phase 2) ---------- */
+  function buildStudio() {
+    studioEl = el('div', 'nursery-studio');
+
+    studioEl.appendChild(colourSection('Mane', 'mane'));
+    studioEl.appendChild(colourSection('Horn', 'horn'));
+    studioEl.appendChild(chipSection('Add', 'accessories', ACCESSORIES));
+    studioEl.appendChild(chipSection('Stable', 'decor', DECOR));
+
+    const done = el('button', 'studio-done', 'Done ✨');
+    done.onclick = () => { S.pop(); setDressing(false); };
+    studioEl.appendChild(done);
+    return studioEl;
+  }
+
+  function colourSection(title, kind) {
+    const sec = el('div', 'studio-section');
+    sec.appendChild(el('div', 'studio-title', title));
+    const row = el('div', 'studio-row');
+    const palette = kind === 'mane' ? MQ.UnicornLook.MANE : MQ.UnicornLook.HORN;
+    Object.keys(palette).forEach((key) => {
+      const b = el('button', 'swatch');
+      b.style.background = SWATCH[kind](palette[key]);
+      b.setAttribute('aria-label', kind + ' ' + key);
+      b.onclick = () => setColour(kind, key);
+      swatchBtns[kind][key] = b;
+      row.appendChild(b);
+    });
+    sec.appendChild(row);
+    return sec;
+  }
+
+  function chipSection(title, group, items) {
+    const sec = el('div', 'studio-section');
+    sec.appendChild(el('div', 'studio-title', title));
+    const row = el('div', 'studio-row');
+    items.forEach((it) => {
+      const b = el('button', 'chip');
+      b.appendChild(el('span', 'chip-icon', it.icon));
+      b.onclick = () => toggleChip(group, it.key);
+      chipBtns[group][it.key] = b;
+      row.appendChild(b);
+    });
+    sec.appendChild(row);
+    return sec;
+  }
+
+  function setColour(kind, key) {
+    pet.look[kind] = key;
+    save();
+    applyLook();
+    S.pop();
+    petUnicorn.setState('happy');
+    refreshStudioSelection();
+  }
+
+  function toggleChip(group, key) {
+    const list = pet.look[group];
+    const i = list.indexOf(key);
+    if (i >= 0) list.splice(i, 1); else list.push(key);
+    save();
+    applyLook();
+    S.pop();
+    if (group === 'accessories') petUnicorn.setState('happy');
+    refreshStudioSelection();
+  }
+
+  function refreshStudioSelection() {
+    ['mane', 'horn'].forEach((kind) => {
+      Object.keys(swatchBtns[kind]).forEach((key) => {
+        swatchBtns[kind][key].classList.toggle('selected', pet.look[kind] === key);
+      });
+    });
+    ['accessories', 'decor'].forEach((group) => {
+      Object.keys(chipBtns[group]).forEach((key) => {
+        chipBtns[group][key].classList.toggle('on', pet.look[group].indexOf(key) >= 0);
+      });
+    });
+  }
+
+  function setDressing(on) {
+    if (!root) return;
+    root.classList.toggle('dressing', !!on);
+    if (on) {
+      petUnicorn.setState('happy');
+      refreshStudioSelection();
+      caption(LINE.dress); N.speak(LINE.dress);
+    } else {
+      updateMood();
+    }
+  }
+
+  /* toggle the chosen décor on/off in the stable scene */
+  function applyDecor() {
+    if (!decorLayer) return;
+    const on = pet.look.decor || [];
+    DECOR.forEach((d) => {
+      const node = decorLayer.querySelector('.decor-' + d.key);
+      if (node) node.classList.toggle('on', on.indexOf(d.key) >= 0);
+    });
   }
 
   /* ---------- hatch ceremony (one-time) ---------- */
@@ -190,6 +332,7 @@ window.MQ = window.MQ || {};
     S.fanfare();
     root.classList.add('is-hatched');
     petUnicorn.setStage(pet.stage || 0);
+    applyLook();
     petUnicorn.setState('shy');
     const hello = 'Meet your very own baby ' + petName() + '!';
     caption(hello); N.speak(hello);
@@ -269,7 +412,7 @@ window.MQ = window.MQ || {};
 
   /* ---------- mood (positive only: happy / calm / a little sleepy) ---------- */
   function updateMood() {
-    if (!pet.hatched) return;
+    if (!pet.hatched || root.classList.contains('dressing')) return;
     const a = avg();
     if (a >= 75) petUnicorn.setState('happy');
     else if (a >= 45) petUnicorn.setState('idle');
@@ -314,11 +457,14 @@ window.MQ = window.MQ || {};
   function open() {
     if (!built) build();
     applyDecay();
+    setDressing(false);
     pet.stage = stageFor(pet.growth);
     petUnicorn.setStage(pet.stage);
+    applyLook();
     root.classList.toggle('is-hatched', !!pet.hatched);
     renderDust();
     renderMeters();
+    refreshStudioSelection();
     if (MQ.Game) MQ.Game.show('nursery');
     if (!pet.hatched) {
       eggTaps = 0;
@@ -332,14 +478,15 @@ window.MQ = window.MQ || {};
 
   MQ.Nursery = { open: open };
 
-  /* writing quests feed growth too — game.js calls this from finishRun().
-   * Safe to call before the nursery is ever opened (just banks the points). */
+  /* writing quests feed growth too — game.js calls addGrowth() from finishRun().
+   * getLook() lets game.js paint the title/companion sprites on boot. */
   MQ.Pet = {
     addGrowth: function (n) {
       if (!pet.hatched) return;
       pet.growth += (n || 0);
       save();
       if (built) checkGrowth();
-    }
+    },
+    getLook: function () { return pet.look; }
   };
 })();

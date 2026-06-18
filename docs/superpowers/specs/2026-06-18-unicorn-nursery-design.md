@@ -12,8 +12,13 @@ _2026-06-18_
 
 ## Scope
 - **Phase 1 (implemented):** Hatch ceremony + Care hub (feed / brush / play / tuck-in) + 3 gentle meters + visible growth (Baby → Little → Big) + star-dust earned from writing quests + a treat shop.
-- **Phase 2 (future):** Dress-up & decorate studio.
+- **Phase 2 (implemented):** Dress-Up & Decorate studio — recolour mane & horn, toggle accessories (crown/bow/flower/shades/scarf/sparkles), decorate the stable. Open-ended, no win/lose; the live pet is the preview; the chosen look shows on every sprite (nursery, title, companion) and persists.
 - **Phase 3 (future):** Mini-game arcade + hatch/collect more unicorns.
+
+### Phase 2 notes
+- `js/unicorn.js` now gives each sprite **unique gradient ids** (fixes a latent duplicate-id bug) and a `setLook(look)`; `MQ.setUnicornLook(look)` repaints all instances. Palettes live in `MQ.UnicornLook` (shared with the studio UI). Accessories are emoji `<text>` overlays toggled via `opacity`.
+- `look = { mane, horn, accessories:[], decor:[] }` is stored in `mq_pet`; `MQ.Pet.getLook()` lets `game.js` paint the title/companion sprites on boot.
+- The studio is a mode inside the nursery (`#screen-nursery.dressing`) that swaps the care UI for swatches/chips; the same pet is the live preview.
 
 ## How it works
 - New **"🦄 My unicorn"** tile on the title screen opens `#screen-nursery`.

@@ -42,7 +42,8 @@ window.MQ = window.MQ || {};
     { id: 'nursery-brush', group: 'Nursery', text: 'Ooh, so sparkly!' },
     { id: 'nursery-play',  group: 'Nursery', text: 'Wheee! That tickles!' },
     { id: 'nursery-sleep', group: 'Nursery', text: 'Nighty night...' },
-    { id: 'nursery-poor',  group: 'Nursery', text: 'I need more star-dust. Let us write some words!' }
+    { id: 'nursery-poor',  group: 'Nursery', text: 'I need more star-dust. Let us write some words!' },
+    { id: 'nursery-dress', group: 'Nursery', text: 'Make me beautiful!' }
   ];
 
   const byText = {};
