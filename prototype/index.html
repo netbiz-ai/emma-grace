@@ -18,6 +18,7 @@
 
   <link rel="stylesheet" href="css/game.css">
   <link rel="stylesheet" href="css/nursery.css">
+  <link rel="stylesheet" href="css/arcade.css">
 </head>
 <body class="sky-day">
 
@@ -110,6 +111,7 @@
     <button id="play-btn" class="big-btn">▶ Play</button>
     <button id="adventure-btn" class="big-btn outside-btn">🌞 Go outside!</button>
     <button id="nursery-btn" class="big-btn nursery-btn">🦄 My unicorn</button>
+    <button id="arcade-btn" class="big-btn arcade-tile">🎮 Play games</button>
     <button id="mode-btn" class="mode-btn">✏️ With tracing</button>
   </section>
 
@@ -176,6 +178,9 @@
   <!-- Unicorn Nursery (hatch & care) — built by js/nursery.js -->
   <section id="screen-nursery" class="screen"></section>
 
+  <!-- Unicorn Arcade (mini-games) — built by js/arcade.js -->
+  <section id="screen-arcade" class="screen"></section>
+
   <!-- persistent unicorn + speech (left side, clear of her writing hand) -->
   <aside id="rail">
     <div id="bubble">…</div>
@@ -198,6 +203,7 @@
   <script src="js/sounds.js"></script>
   <script src="js/unicorn.js"></script>
   <script src="js/nursery.js"></script>
+  <script src="js/arcade.js"></script>
   <script src="js/game.js"></script>
   <script>
     // register the service worker for offline play + installability

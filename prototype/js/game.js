@@ -35,7 +35,8 @@ window.MQ = window.MQ || {};
     mission: $('#screen-mission'),
     found: $('#screen-found'),
     complete: $('#screen-complete'),
-    nursery: $('#screen-nursery')
+    nursery: $('#screen-nursery'),
+    arcade: $('#screen-arcade')
   };
   const sky = document.body;
   const bubble = $('#bubble');
@@ -552,6 +553,13 @@ window.MQ = window.MQ || {};
       if (MQ.Voice) MQ.Voice.unlock();  // prime Dad's-voice player for iOS
       if (S.musicPref()) S.toggleMusic(true);
       MQ.Nursery.open();
+    };
+
+    $('#arcade-btn').onclick = () => {
+      S.unlock();                       // user gesture: unlock audio + speech
+      if (MQ.Voice) MQ.Voice.unlock();  // prime Dad's-voice player for iOS
+      if (S.musicPref()) S.toggleMusic(true);
+      MQ.Arcade.open();
     };
 
     $('#mission-go-btn').onclick = () => { S.pop(); showFound(currentMission); };

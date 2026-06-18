@@ -13,7 +13,13 @@ _2026-06-18_
 ## Scope
 - **Phase 1 (implemented):** Hatch ceremony + Care hub (feed / brush / play / tuck-in) + 3 gentle meters + visible growth (Baby → Little → Big) + star-dust earned from writing quests + a treat shop.
 - **Phase 2 (implemented):** Dress-Up & Decorate studio — recolour mane & horn, toggle accessories (crown/bow/flower/shades/scarf/sparkles), decorate the stable. Open-ended, no win/lose; the live pet is the preview; the chosen look shows on every sprite (nursery, title, companion) and persists.
-- **Phase 3 (future):** Mini-game arcade + hatch/collect more unicorns.
+- **Phase 3 (implemented — addresses "the game is too static"):** Unicorn Arcade — a menu of relaxed, no-fail mini-games for active play. Launch set: 🌟 Star Catch (drag to catch falling stars), 🫧 Bubble Pop (tap rising bubbles, golden worth more), 🦋 Peek-a-Boo (tap friends before they hide). Scores convert to star-dust (≤5/round) feeding the nursery loop.
+- **Phase 4 (future):** Touchable unicorn + drag-and-drop care + living world; hatch/collect more unicorns.
+
+### Phase 3 notes
+- `js/arcade.js` (`MQ.Arcade`) + `css/arcade.css`; new `#screen-arcade` and a "🎮 Play games" title tile; `sw.js` → v6.
+- A single shared **Canvas + requestAnimationFrame engine** draws entities as emoji, handles high-DPI scaling, pointer input, particle bursts, the score/time HUD and the celebratory end screen. Each game is a compact object (`setup/update/onDown/onMove`) plugged into the engine and exposed via `MQ.Arcade.games` (keeps mechanics unit-testable without a real canvas).
+- No-fail: ~30s timer, misses just fade, always ends on a celebration. Rewards via `MQ.Economy.addStardust` + `MQ.Pet.addGrowth`.
 
 ### Phase 2 notes
 - `js/unicorn.js` now gives each sprite **unique gradient ids** (fixes a latent duplicate-id bug) and a `setLook(look)`; `MQ.setUnicornLook(look)` repaints all instances. Palettes live in `MQ.UnicornLook` (shared with the studio UI). Accessories are emoji `<text>` overlays toggled via `opacity`.
