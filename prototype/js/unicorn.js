@@ -1,20 +1,48 @@
 /* Magic Quill — the baby unicorn.
  * A layered chibi SVG with animation states driven by CSS classes:
  *   idle | shy | happy | celebrate
- * createUnicorn(container) -> { el, setState(name), setBow(bool) }
- */
+ * createUnicorn(container) -> { el, setState(name), setBow(bool), setStage(n), setLook(look) }
+ *
+ * Customization (Phase 2 — the Dress-Up studio):
+ *   look = { mane, horn, accessories:[...], decor:[...] }
+ * Each instance gets UNIQUE gradient ids so manes/horns recolor per-unicorn
+ * (the gradients used to share ids, so only the first sprite recolored).
+ * MQ.setUnicornLook(look) applies a look to EVERY unicorn on the page at once,
+ * so her choices show on the nursery pet, the title sprite and the companion. */
 window.MQ = window.MQ || {};
 
-MQ.createUnicorn = function (container) {
-  const wrap = document.createElement('div');
-  wrap.className = 'unicorn u-idle';
-  wrap.innerHTML = `
+/* palettes — the single source of truth, also read by the studio UI in nursery.js */
+MQ.UnicornLook = {
+  MANE: {
+    rainbow: ['#ff7eb6', '#b89cff', '#7fd4ff'],
+    pink:    ['#ffb3d4', '#ff7eb6', '#ff5f9e'],
+    purple:  ['#d8ccff', '#b89cff', '#8a6fff'],
+    mint:    ['#bff5d8', '#7ee8a2', '#49c6a0'],
+    sunset:  ['#ffe066', '#ffb86b', '#ff7eb6']
+  },
+  HORN: {
+    gold:    ['#ffd76b', '#fff3c4'],
+    pink:    ['#ff8fb8', '#ffd1e4'],
+    silver:  ['#c8d2e0', '#ffffff'],
+    rainbow: ['#b89cff', '#ffe66b']
+  }
+};
+
+(function () {
+  const instances = [];
+  let seq = 0;
+
+  MQ.createUnicorn = function (container) {
+    const id = 'u' + (++seq); // unique per instance → gradients don't collide
+    const wrap = document.createElement('div');
+    wrap.className = 'unicorn u-idle';
+    wrap.innerHTML = `
 <svg viewBox="0 0 200 180" class="unicorn-svg" aria-hidden="true">
   <defs>
-    <linearGradient id="u-horn" x1="0" y1="1" x2="0" y2="0">
+    <linearGradient id="u-horn-${id}" x1="0" y1="1" x2="0" y2="0">
       <stop offset="0" stop-color="#ffd76b"/><stop offset="1" stop-color="#fff3c4"/>
     </linearGradient>
-    <linearGradient id="u-mane" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="u-mane-${id}" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#ff7eb6"/><stop offset="0.5" stop-color="#b89cff"/>
       <stop offset="1" stop-color="#7fd4ff"/>
     </linearGradient>
@@ -22,7 +50,7 @@ MQ.createUnicorn = function (container) {
 
   <g class="u-body-group">
     <!-- tail -->
-    <path class="u-tail" fill="url(#u-mane)"
+    <path class="u-tail" fill="url(#u-mane-${id})"
       d="M 38 112 C 18 104 12 128 24 138 C 14 140 16 156 30 154 C 22 162 36 170 44 160 C 52 150 50 124 48 116 Z"/>
 
     <!-- back legs -->
@@ -41,7 +69,7 @@ MQ.createUnicorn = function (container) {
 
     <g class="u-head-group">
       <!-- mane behind head -->
-      <path fill="url(#u-mane)"
+      <path fill="url(#u-mane-${id})"
         d="M 124 28 C 108 18 92 24 88 42 C 80 38 70 46 74 58 C 64 60 62 74 72 80 L 96 86 L 130 60 Z"/>
       <!-- head -->
       <ellipse cx="134" cy="58" rx="34" ry="30" fill="#fff9fc"/>
@@ -52,10 +80,10 @@ MQ.createUnicorn = function (container) {
       <path d="M 116 32 L 124 12 L 134 30 Z" fill="#fff9fc"/>
       <path d="M 119 29 L 124 18 L 129 28 Z" fill="#ffd7ea"/>
       <!-- horn -->
-      <path class="u-horn" d="M 138 30 L 146 2 L 152 30 Z" fill="url(#u-horn)"/>
+      <path class="u-horn" d="M 138 30 L 146 2 L 152 30 Z" fill="url(#u-horn-${id})"/>
       <path d="M 140 24 L 150 20 M 141 16 L 149 13" stroke="#e8b84a" stroke-width="1.6" fill="none"/>
       <!-- mane fringe -->
-      <path fill="url(#u-mane)"
+      <path fill="url(#u-mane-${id})"
         d="M 112 38 C 118 26 132 24 140 32 C 134 36 130 42 130 48 C 122 44 114 44 112 38 Z"/>
       <!-- eye (blinks) -->
       <g class="u-eye">
@@ -79,8 +107,18 @@ MQ.createUnicorn = function (container) {
     </g>
 
     <!-- body mane -->
-    <path fill="url(#u-mane)" opacity="0.9"
+    <path fill="url(#u-mane-${id})" opacity="0.9"
       d="M 86 86 C 78 78 64 82 66 94 C 58 94 54 106 64 110 C 60 118 70 124 78 118 L 90 100 Z"/>
+  </g>
+
+  <!-- dress-up accessories (emoji overlays; hidden until chosen in the studio) -->
+  <g class="u-accessories" font-size="26" text-anchor="middle">
+    <text class="acc" data-acc="crown"  x="140" y="22"  opacity="0">👑</text>
+    <text class="acc" data-acc="flower" x="114" y="34"  opacity="0">🌸</text>
+    <text class="acc" data-acc="bow"    x="110" y="44"  opacity="0">🎀</text>
+    <text class="acc" data-acc="shades" x="140" y="64"  opacity="0">🕶️</text>
+    <text class="acc" data-acc="scarf"  x="120" y="104" opacity="0">🧣</text>
+    <text class="acc" data-acc="stars"  x="174" y="30"  opacity="0">✨</text>
   </g>
 
   <!-- celebration stars (shown in celebrate state) -->
@@ -90,17 +128,42 @@ MQ.createUnicorn = function (container) {
     <path class="u-star s3" d="M 180 120 l 2 4 4 0.7 -3 3 0.7 4.3 -3.7 -2 -3.7 2 0.7 -4.3 -3 -3 4 -0.7 Z" fill="#9be0ff"/>
   </g>
 </svg>`;
-  container.appendChild(wrap);
+    container.appendChild(wrap);
 
-  return {
-    el: wrap,
-    setState(name) {
-      wrap.classList.remove('u-idle', 'u-shy', 'u-happy', 'u-celebrate');
-      wrap.classList.add('u-' + name);
-    },
-    setBow(on) {
-      const bow = wrap.querySelector('.u-bow');
-      if (bow) bow.style.opacity = on ? 1 : 0;
-    }
+    const api = {
+      el: wrap,
+      setState(name) {
+        wrap.classList.remove('u-idle', 'u-shy', 'u-happy', 'u-celebrate');
+        wrap.classList.add('u-' + name);
+      },
+      setBow(on) {
+        const bow = wrap.querySelector('.u-bow');
+        if (bow) bow.style.opacity = on ? 1 : 0;
+      },
+      // growth stage for the nursery pet: 0 baby | 1 little | 2 big (CSS scales it)
+      setStage(stage) {
+        wrap.classList.remove('u-stage-0', 'u-stage-1', 'u-stage-2');
+        wrap.classList.add('u-stage-' + (stage || 0));
+      },
+      // apply a saved dress-up look (mane/horn colour + accessory emoji)
+      setLook(look) {
+        look = look || {};
+        const mane = MQ.UnicornLook.MANE[look.mane] || MQ.UnicornLook.MANE.rainbow;
+        const ms = wrap.querySelectorAll('#u-mane-' + id + ' stop');
+        for (let i = 0; i < ms.length && i < mane.length; i++) ms[i].setAttribute('stop-color', mane[i]);
+        const horn = MQ.UnicornLook.HORN[look.horn] || MQ.UnicornLook.HORN.gold;
+        const hs = wrap.querySelectorAll('#u-horn-' + id + ' stop');
+        for (let i = 0; i < hs.length && i < horn.length; i++) hs[i].setAttribute('stop-color', horn[i]);
+        const acc = Array.isArray(look.accessories) ? look.accessories : [];
+        wrap.querySelectorAll('.acc').forEach((t) => {
+          t.setAttribute('opacity', acc.indexOf(t.getAttribute('data-acc')) >= 0 ? '1' : '0');
+        });
+      }
+    };
+    instances.push(api);
+    return api;
   };
-};
+
+  // apply a look to every unicorn currently on the page (nursery pet, title, companion)
+  MQ.setUnicornLook = function (look) { instances.forEach((u) => u.setLook(look)); };
+})();

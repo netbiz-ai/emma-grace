@@ -17,6 +17,8 @@
   <link rel="stylesheet" href="css/fonts.css">
 
   <link rel="stylesheet" href="css/game.css">
+  <link rel="stylesheet" href="css/nursery.css">
+  <link rel="stylesheet" href="css/arcade.css">
 </head>
 <body class="sky-day">
 
@@ -103,11 +105,17 @@
 
   <!-- ===== screens ===== -->
   <section id="screen-title" class="screen active">
+    <figure class="family-frame" id="title-family">
+      <img src="img/family.jpg" alt="Emma-Grace and her family at the beach" loading="lazy">
+      <figcaption>Our family 💖</figcaption>
+    </figure>
     <h1 id="title-heading">Unicorn Academy</h1>
     <p class="subtitle">✨ Magic Quill ✨</p>
     <div id="title-unicorn"></div>
     <button id="play-btn" class="big-btn">▶ Play</button>
     <button id="adventure-btn" class="big-btn outside-btn">🌞 Go outside!</button>
+    <button id="nursery-btn" class="big-btn nursery-btn">🦄 My unicorn</button>
+    <button id="arcade-btn" class="big-btn arcade-tile">🎮 Play games</button>
     <button id="mode-btn" class="mode-btn">✏️ With tracing</button>
   </section>
 
@@ -165,16 +173,38 @@
     <div class="panel">
       <div class="sticker" id="complete-sticker">🎀</div>
       <h2 id="complete-msg">You earned a magic bow!</h2>
+      <p id="complete-dust"></p>
       <div id="sticker-row" aria-label="Sticker collection"></div>
       <button id="again-btn" class="big-btn">Play again</button>
     </div>
   </section>
+
+  <!-- Unicorn Nursery (hatch & care) — built by js/nursery.js -->
+  <section id="screen-nursery" class="screen"></section>
+
+  <!-- Unicorn Arcade (mini-games) — built by js/arcade.js -->
+  <section id="screen-arcade" class="screen"></section>
 
   <!-- persistent unicorn + speech (left side, clear of her writing hand) -->
   <aside id="rail">
     <div id="bubble">…</div>
     <div id="unicorn-slot"></div>
   </aside>
+
+  <!-- universal navigation: jump to any activity from any screen (hidden on the title hub) -->
+  <button id="nav-home" aria-label="Go to menu">🏠</button>
+  <div id="nav-menu" hidden>
+    <div class="nav-panel">
+      <h2>Where to?</h2>
+      <div class="nav-grid">
+        <button class="topic-btn" data-dest="write"><span class="emoji">✏️</span><span class="label">Write</span></button>
+        <button class="topic-btn" data-dest="outside"><span class="emoji">🌞</span><span class="label">Go outside</span></button>
+        <button class="topic-btn" data-dest="unicorn"><span class="emoji">🦄</span><span class="label">My unicorn</span></button>
+        <button class="topic-btn" data-dest="arcade"><span class="emoji">🎮</span><span class="label">Games</span></button>
+      </div>
+      <button id="nav-close" class="mode-btn">✖ Stay here</button>
+    </div>
+  </div>
 
   <button id="music-btn" aria-label="Music on or off">♪</button>
   <a id="parent-link" href="replay.html" aria-label="Parent replay page">✦ grown-ups</a>
@@ -191,6 +221,8 @@
   <script src="js/narrator.js"></script>
   <script src="js/sounds.js"></script>
   <script src="js/unicorn.js"></script>
+  <script src="js/nursery.js"></script>
+  <script src="js/arcade.js"></script>
   <script src="js/game.js"></script>
   <script>
     // register the service worker for offline play + installability

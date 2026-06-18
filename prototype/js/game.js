@@ -20,7 +20,7 @@ window.MQ = window.MQ || {};
     try { localStorage.setItem('mq_profile', JSON.stringify(p)); } catch (e) {}
   }
   const profile = Object.assign(
-    { name: MQ.NAME_TEXT, unicorn: null, quest0Done: false, stickers: [], bag: [], bags: {}, mode: 'trace', advLevel: 1 },
+    { name: MQ.NAME_TEXT, unicorn: null, quest0Done: false, stickers: [], bag: [], bags: {}, mode: 'trace', advLevel: 1, stardust: 0 },
     loadProfile()
   );
 
@@ -34,7 +34,9 @@ window.MQ = window.MQ || {};
     adventures: $('#screen-adventures'),
     mission: $('#screen-mission'),
     found: $('#screen-found'),
-    complete: $('#screen-complete')
+    complete: $('#screen-complete'),
+    nursery: $('#screen-nursery'),
+    arcade: $('#screen-arcade')
   };
   const sky = document.body;
   const bubble = $('#bubble');
@@ -48,6 +50,23 @@ window.MQ = window.MQ || {};
   function showScreen(name) {
     Object.keys(screens).forEach((k) => screens[k].classList.toggle('active', k === name));
   }
+
+  /* ---------- bridges for the Nursery module (js/nursery.js) ----------
+   * Star-dust is the shared currency: writing quests earn it, the nursery
+   * spends it. Kept tiny so the two modules stay decoupled. */
+  MQ.Economy = {
+    getStardust() { return profile.stardust || 0; },
+    addStardust(n) { profile.stardust = (profile.stardust || 0) + (n || 0); saveProfile(profile); return profile.stardust; },
+    spendStardust(n) {
+      if ((profile.stardust || 0) < n) return false;
+      profile.stardust -= n; saveProfile(profile); return true;
+    }
+  };
+  MQ.Game = {
+    show: showScreen,
+    unicornName: () => profile.unicorn,
+    hasBow: () => profile.stickers.includes('🎀')
+  };
 
   function setSky(stage) { // night | dawn1 | dawn2 | day
     sky.classList.remove('sky-night', 'sky-dawn1', 'sky-dawn2', 'sky-day');
@@ -360,7 +379,11 @@ window.MQ = window.MQ || {};
     if (!profile.stickers.includes(sticker)) profile.stickers.push(sticker);
     if (profile.stickers.includes('🎀')) unicorn.setBow(true);
     saveProfile(profile);
-    showComplete(sticker, words);
+    // reward star-dust (spent in the nursery) + feed the pet's growth
+    const dust = lastMode === 'adventure' ? 1 : 3;
+    MQ.Economy.addStardust(dust);
+    if (MQ.Pet) MQ.Pet.addGrowth(2);
+    showComplete(sticker, words, dust);
   }
 
   /* ---------- Adventure Playground Quest (go-outside missions) ----------
@@ -457,10 +480,12 @@ window.MQ = window.MQ || {};
     finishRun([word]);
   }
 
-  function showComplete(sticker, words) {
+  function showComplete(sticker, words, dust) {
     showScreen('complete');
     $('#complete-sticker').textContent = sticker;
     $('#complete-msg').textContent = 'You wrote ' + words.map(MQ.wordDisplay).join(', ') + '!';
+    const dustEl = $('#complete-dust');
+    if (dustEl) dustEl.textContent = dust ? ('+' + dust + ' ⭐ star-dust for ' + (profile.unicorn || 'your unicorn') + '!') : '';
     $('#sticker-row').textContent = profile.stickers.join(' ');
     const adv = lastMode === 'adventure';
     $('#again-btn').textContent = adv ? '🌞 Adventure again!' : 'Play again!';
@@ -477,11 +502,30 @@ window.MQ = window.MQ || {};
     b.textContent = profile.mode === 'free' ? '⭐ All by myself!' : '✏️ With tracing';
   }
 
+  /* ---------- universal navigation ----------
+   * Lets the child jump to any activity from any screen. Tears down whatever is
+   * running first (writing engine, arcade loop, narration) so nothing lingers. */
+  function teardownCurrent() {
+    if (engine) { try { engine.destroy(); } catch (e) {} engine = null; }
+    if (MQ.Arcade && MQ.Arcade.leave) MQ.Arcade.leave();
+    if (N && N.stop) N.stop();
+  }
+  function goTo(dest) {
+    teardownCurrent();
+    if (dest === 'write') { if (!profile.quest0Done) { quest0(); return; } showTopicPicker(); }
+    else if (dest === 'outside') { if (!profile.quest0Done) { quest0(); return; } showAdventurePicker(); }
+    else if (dest === 'unicorn') { MQ.Nursery.open(); }
+    else if (dest === 'arcade') { MQ.Arcade.open(); }
+    else { showScreen('title'); }
+  }
+
   /* ---------- boot ---------- */
   function boot() {
     unicorn = MQ.createUnicorn($('#unicorn-slot'));
     const titleUnicorn = MQ.createUnicorn($('#title-unicorn'));
     if (profile.stickers.includes('🎀')) { unicorn.setBow(true); titleUnicorn.setBow(true); }
+    // paint every sprite with her saved dress-up look (nursery owns it)
+    if (MQ.setUnicornLook && MQ.Pet && MQ.Pet.getLook) MQ.setUnicornLook(MQ.Pet.getLook());
 
     $('#title-heading').textContent = profile.quest0Done
       ? 'Welcome back, ' + profile.name + '!'
@@ -521,12 +565,40 @@ window.MQ = window.MQ || {};
       showAdventurePicker();
     };
 
+    $('#nursery-btn').onclick = () => {
+      S.unlock();                       // user gesture: unlock audio + speech
+      if (MQ.Voice) MQ.Voice.unlock();  // prime Dad's-voice player for iOS
+      if (S.musicPref()) S.toggleMusic(true);
+      MQ.Nursery.open();
+    };
+
+    $('#arcade-btn').onclick = () => {
+      S.unlock();                       // user gesture: unlock audio + speech
+      if (MQ.Voice) MQ.Voice.unlock();  // prime Dad's-voice player for iOS
+      if (S.musicPref()) S.toggleMusic(true);
+      MQ.Arcade.open();
+    };
+
     $('#mission-go-btn').onclick = () => { S.pop(); showFound(currentMission); };
 
     $('#music-btn').onclick = (e) => {
       const on = S.toggleMusic();
       e.currentTarget.classList.toggle('off', !on);
     };
+
+    // universal navigation launcher — reachable from every screen but the title
+    const navMenu = $('#nav-menu');
+    $('#nav-home').onclick = () => {
+      S.unlock();
+      if (MQ.Voice) MQ.Voice.unlock();
+      S.pop();
+      navMenu.hidden = false;
+    };
+    $('#nav-close').onclick = () => { S.pop(); navMenu.hidden = true; };
+    navMenu.addEventListener('click', (e) => { if (e.target === navMenu) navMenu.hidden = true; });
+    navMenu.querySelectorAll('[data-dest]').forEach((b) => {
+      b.onclick = () => { S.pop(); navMenu.hidden = true; goTo(b.dataset.dest); };
+    });
   }
 
   document.addEventListener('DOMContentLoaded', boot);

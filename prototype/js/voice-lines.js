@@ -35,7 +35,16 @@ window.MQ = window.MQ || {};
     { id: 'naming',          group: 'Story moments', text: 'Now I need a name! Tap the name you like best for me!' },
     { id: 'learn-today',     group: 'Story moments', text: 'What shall we learn today? Pick one!' },
     { id: 'adventure-today', group: 'Story moments', text: 'Where shall we adventure today? Pick one!' },
-    { id: 'found-back',      group: 'Story moments', text: 'You are back! What did you find?' }
+    { id: 'found-back',      group: 'Story moments', text: 'You are back! What did you find?' },
+    // nursery (fixed, name-free lines in js/nursery.js)
+    { id: 'nursery-egg',   group: 'Nursery', text: 'Tap the magic egg!' },
+    { id: 'nursery-feed',  group: 'Nursery', text: 'Yummy! Thank you!' },
+    { id: 'nursery-brush', group: 'Nursery', text: 'Ooh, so sparkly!' },
+    { id: 'nursery-play',  group: 'Nursery', text: 'Wheee! That tickles!' },
+    { id: 'nursery-sleep', group: 'Nursery', text: 'Nighty night...' },
+    { id: 'nursery-poor',  group: 'Nursery', text: 'I need more star-dust. Let us write some words!' },
+    { id: 'nursery-dress', group: 'Nursery', text: 'Make me beautiful!' },
+    { id: 'nursery-pet',   group: 'Nursery', text: 'Hehe! That tickles!' }
   ];
 
   const byText = {};
