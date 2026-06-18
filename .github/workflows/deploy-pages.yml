@@ -37,6 +37,16 @@ jobs:
         with:
           enablement: true
 
+      # Give the service worker a unique cache version per deploy so installed
+      # devices detect the SW update and purge stale caches. Modifies only the
+      # uploaded artifact, not the committed source (which keeps a placeholder).
+      - name: Stamp service-worker cache version with deploy SHA
+        run: |
+          VERSION="${GITHUB_SHA::7}"
+          sed -i "s/const CACHE_VERSION = '[^']*';/const CACHE_VERSION = '${VERSION}';/" prototype/sw.js
+          echo "Stamped CACHE_VERSION → ${VERSION}"
+          grep -n "CACHE_VERSION =" prototype/sw.js
+
       - name: Upload prototype/ as the Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
